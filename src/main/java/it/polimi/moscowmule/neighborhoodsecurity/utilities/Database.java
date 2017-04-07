@@ -13,15 +13,20 @@ public class Database {
 	 * @return the connection
 	 * @throws URISyntaxException
 	 * @throws SQLException
+	 * @throws ClassNotFoundException 
 	 */
-	static Connection getConnection() throws URISyntaxException, SQLException {
+	static Connection getConnection() throws URISyntaxException, SQLException, ClassNotFoundException {
+		
+		DriverManager.registerDriver(new com.mysql.jdbc.Driver());
+		
 	    URI jdbUri = new URI(System.getenv("JAWSDB_URL"));
 
 	    String username = jdbUri.getUserInfo().split(":")[0];
 	    String password = jdbUri.getUserInfo().split(":")[1];
 	    String port = String.valueOf(jdbUri.getPort());
-	    String jdbUrl = "jdbc:mysql://" + jdbUri.getHost() + ":" + port + jdbUri.getPath();
-
+	    String jdbUrl = "jdbc:mysql://" + jdbUri.getHost() + ":" + port + jdbUri.getPath();	    
+	    
 	    return DriverManager.getConnection(jdbUrl, username, password);
 	}
+	
 }

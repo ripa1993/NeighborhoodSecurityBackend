@@ -13,6 +13,7 @@ import it.polimi.moscowmule.neighborhoodsecurity.user.User;
 public class DatabaseUsers {
 
 	public static int createUser(User u) {
+		System.out.println("[DB] Beginning user creation "+u);
 		Connection connection;
 		try {
 			connection = Database.getConnection();
@@ -21,22 +22,27 @@ public class DatabaseUsers {
 			createStmt.setString(1, u.getUsername());
 			createStmt.setString(2, u.getEmail());
 			createStmt.setDate(3, new Date(System.currentTimeMillis()));
+			System.out.println("[DB] Statement prepared for "+u);
 			createStmt.executeUpdate();
+			System.out.println("[DB] Update executed for "+u);
 			ResultSet results = createStmt.getGeneratedKeys();
 			int id = -1;
 			if (results.next()) {
 				id = results.getInt(1);
+				System.out.println("[DB] User "+u+" id is "+id);
 			}else{
 				return -1;
 			}
 						
-			PreparedStatement createStmt2 = connection.prepareStatement("INSERT INTO gsx95369n3oh2zo6.users (USERID, SUPERUSER, TOKEN) VALUES (?,?,?)");
+			System.out.println("[DB] Beginning user authorization creation for "+u);
+			PreparedStatement createStmt2 = connection.prepareStatement("INSERT INTO gsx95369n3oh2zo6.authorization (USERID, SUPERUSER, TOKEN) VALUES (?,?,?)");
+			System.out.println("[DB] Authorization statement prepared for "+u);
 			createStmt2.clearParameters();
 			createStmt2.setInt(1, id);
 			createStmt2.setInt(2, 0);
 			createStmt2.setString(3, "");
 			createStmt2.executeUpdate();
-			
+			System.out.println("[DB] Completed creation of "+u);
 			connection.close();
 			return id;
 		} catch (URISyntaxException | SQLException e) {

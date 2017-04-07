@@ -49,7 +49,7 @@ public class DatabaseUsers {
 			System.out.println("[DB] Completed creation of "+u);
 			connection.close();
 			return id;
-		} catch (URISyntaxException | SQLException e) {
+		} catch (URISyntaxException | SQLException | ClassNotFoundException e) {
 
 			
 			System.err.println(e.getMessage());
@@ -76,7 +76,7 @@ public class DatabaseUsers {
 
 			connection.close();
 			return u;
-		} catch (URISyntaxException | SQLException e) {
+		} catch (URISyntaxException | SQLException | ClassNotFoundException e) {
 			return null;
 		}
 	}
@@ -100,7 +100,7 @@ public class DatabaseUsers {
 
 			connection.close();
 			return u;
-		} catch (URISyntaxException | SQLException e) {
+		} catch (URISyntaxException | SQLException | ClassNotFoundException e) {
 			return null;
 		}
 	}
@@ -114,7 +114,7 @@ public class DatabaseUsers {
 			delStmt.setInt(1, id);
 			delStmt.executeUpdate();
 			connection.close();
-		} catch (URISyntaxException | SQLException e) {
+		} catch (URISyntaxException | SQLException | ClassNotFoundException e) {
 			return false;
 		}
 		return true;
@@ -129,7 +129,7 @@ public class DatabaseUsers {
 			createStmt.setInt(1, id);
 			createStmt.setString(2, password);
 			createStmt.executeUpdate();
-		} catch(SQLException | URISyntaxException e){
+		} catch(SQLException | URISyntaxException | ClassNotFoundException e){
 			return false;
 		} 
 		return true;

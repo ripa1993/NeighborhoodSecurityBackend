@@ -50,7 +50,7 @@ public class DatabaseEvents {
 
 			connection.close();
 			return id;
-		} catch (SQLException | URISyntaxException e1) {
+		} catch (SQLException | URISyntaxException | ClassNotFoundException e1) {
 			return -1;
 		}
 
@@ -73,7 +73,7 @@ public class DatabaseEvents {
 			deleteStmt.setInt(1, id);
 			deleteStmt.executeUpdate();
 			connection.close();
-		} catch (URISyntaxException | SQLException e) {
+		} catch (URISyntaxException | SQLException | ClassNotFoundException e) {
 			return false;
 		}
 		return true;
@@ -124,7 +124,7 @@ public class DatabaseEvents {
 			}
 			connection.close();
 			return events;
-		} catch (URISyntaxException | SQLException e) {
+		} catch (URISyntaxException | SQLException | ClassNotFoundException e) {
 			return new ArrayList<Event>();
 		}
 
@@ -160,7 +160,7 @@ public class DatabaseEvents {
 			}
 			connection.close();
 			return temp;
-		} catch (URISyntaxException | SQLException e) {
+		} catch (URISyntaxException | SQLException | ClassNotFoundException e) {
 			return null;
 		}
 	}
@@ -182,7 +182,7 @@ public class DatabaseEvents {
 			if (result.next()){
 				return result.getInt(1);
 			}
-		} catch (URISyntaxException | SQLException e) {
+		} catch (URISyntaxException | SQLException | ClassNotFoundException e) {
 			return null;
 		}
 		return null;

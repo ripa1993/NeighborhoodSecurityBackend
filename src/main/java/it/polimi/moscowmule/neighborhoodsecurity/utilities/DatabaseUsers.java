@@ -16,7 +16,7 @@ public class DatabaseUsers {
 		Connection connection;
 		try {
 			connection = Database.getConnection();
-			PreparedStatement createStmt = connection.prepareStatement("INSERT INTO gsx95369n3oh2zo6.USERS (USERNAME, EMAIL, CREATED) VALUES (?,?,?)",Statement.RETURN_GENERATED_KEYS);
+			PreparedStatement createStmt = connection.prepareStatement("INSERT INTO gsx95369n3oh2zo6.users (USERNAME, EMAIL, CREATED) VALUES (?,?,?)",Statement.RETURN_GENERATED_KEYS);
 			createStmt.clearParameters();
 			createStmt.setString(1, u.getUsername());
 			createStmt.setString(2, u.getEmail());
@@ -30,7 +30,7 @@ public class DatabaseUsers {
 				return -1;
 			}
 						
-			PreparedStatement createStmt2 = connection.prepareStatement("INSERT INTO gsx95369n3oh2zo6.USERS (USERID, SUPERUSER, TOKEN) VALUES (?,?,?)");
+			PreparedStatement createStmt2 = connection.prepareStatement("INSERT INTO gsx95369n3oh2zo6.users (USERID, SUPERUSER, TOKEN) VALUES (?,?,?)");
 			createStmt2.clearParameters();
 			createStmt2.setInt(1, id);
 			createStmt2.setInt(2, 0);
@@ -48,7 +48,7 @@ public class DatabaseUsers {
 		Connection connection;
 		try {
 			connection = Database.getConnection();
-			PreparedStatement getStmt = connection.prepareStatement("SELECT * FROM gsx95369n3oh2zo6.USERS WHERE ID == ?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+			PreparedStatement getStmt = connection.prepareStatement("SELECT * FROM gsx95369n3oh2zo6.users WHERE ID == ?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			getStmt.clearParameters();
 			getStmt.setInt(1, id);
 			ResultSet results = getStmt.executeQuery();
@@ -72,7 +72,7 @@ public class DatabaseUsers {
 		Connection connection;
 		try {
 			connection = Database.getConnection();
-			PreparedStatement getStmt = connection.prepareStatement("SELECT * FROM gsx95369n3oh2zo6.USERS WHERE EMAIL == ?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+			PreparedStatement getStmt = connection.prepareStatement("SELECT * FROM gsx95369n3oh2zo6.users WHERE EMAIL == ?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			getStmt.clearParameters();
 			getStmt.setString(1, email);
 			ResultSet results = getStmt.executeQuery();
@@ -96,7 +96,7 @@ public class DatabaseUsers {
 		Connection connection;
 		try{
 			connection = Database.getConnection();
-			PreparedStatement delStmt = connection.prepareStatement("DELETE FROM gsx95369n3oh2zo6.USERS WHERE ID == ?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+			PreparedStatement delStmt = connection.prepareStatement("DELETE FROM gsx95369n3oh2zo6.users WHERE ID == ?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			delStmt.clearParameters();
 			delStmt.setInt(1, id);
 			delStmt.executeUpdate();
@@ -111,7 +111,7 @@ public class DatabaseUsers {
 		Connection connection;
 		try{
 			connection = Database.getConnection();
-			PreparedStatement createStmt = connection.prepareStatement("INSERT INTO gsx95369n3oh2zo6.SECRET (IDUSER, PASSWORD) VALUES (?,?)");
+			PreparedStatement createStmt = connection.prepareStatement("INSERT INTO gsx95369n3oh2zo6.secret (IDUSER, PASSWORD) VALUES (?,?)");
 			createStmt.clearParameters();
 			createStmt.setInt(1, id);
 			createStmt.setString(2, password);

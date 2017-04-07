@@ -29,7 +29,7 @@ public class DatabaseEvents {
 		try {
 			connection = Database.getConnection();
 			PreparedStatement createStmt = connection.prepareStatement(
-					"INSERT INTO gsx95369n3oh2zo6.EVENTS (DATE, EVENTTYPE, DESCRIPTION,"
+					"INSERT INTO gsx95369n3oh2zo6.events (DATE, EVENTTYPE, DESCRIPTION,"
 							+ "COUNTRY, CITY, STREET, LATITUDE, LONGITUDE, SUBMITTERID) VALUES (?,?,?,?,?,?,?,?,?)",
 					Statement.RETURN_GENERATED_KEYS);
 			createStmt.setDate(1, (Date) e.getDate());
@@ -68,7 +68,7 @@ public class DatabaseEvents {
 		Connection connection;
 		try {
 			connection = Database.getConnection();
-			PreparedStatement deleteStmt = connection.prepareStatement("DELETE FROM gsx95369n3oh2zo6.EVENTS WHERE ID == ?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+			PreparedStatement deleteStmt = connection.prepareStatement("DELETE FROM gsx95369n3oh2zo6.events WHERE ID == ?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			deleteStmt.clearParameters();
 			deleteStmt.setInt(1, id);
 			deleteStmt.executeUpdate();
@@ -97,7 +97,7 @@ public class DatabaseEvents {
 		try {
 			connection = Database.getConnection();
 			PreparedStatement getStmt = connection.prepareStatement(
-					"SELECT * FROM gsx95369n3oh2zo6.EVENTS WHERE LATITUDE < ? AND LATITUDE > ? AND LONGITUDE < ? AND LONGITUDE > ?",
+					"SELECT * FROM gsx95369n3oh2zo6.events WHERE LATITUDE < ? AND LATITUDE > ? AND LONGITUDE < ? AND LONGITUDE > ?",
 					ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			getStmt.clearParameters();
 			getStmt.setFloat(1, latitudeMax);
@@ -139,7 +139,7 @@ public class DatabaseEvents {
 		Connection connection;
 		try {
 			connection = Database.getConnection();
-			PreparedStatement getStmt = connection.prepareStatement("SELECT * FROM gsx95369n3oh2zo6.EVENTS WHERE ID == ?",
+			PreparedStatement getStmt = connection.prepareStatement("SELECT * FROM gsx95369n3oh2zo6.events WHERE ID == ?",
 					ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			getStmt.clearParameters();
 			getStmt.setInt(1, id);
@@ -174,7 +174,7 @@ public class DatabaseEvents {
 		Connection connection;
 		try{
 			connection = Database.getConnection();
-			PreparedStatement getStmt = connection.prepareStatement("SELECT SUBMITTERID FROM gsx95369n3oh2zo6.EVENTS WHERE ID == ?",
+			PreparedStatement getStmt = connection.prepareStatement("SELECT SUBMITTERID FROM gsx95369n3oh2zo6.events WHERE ID == ?",
 					ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			getStmt.clearParameters();
 			getStmt.setInt(1, id);

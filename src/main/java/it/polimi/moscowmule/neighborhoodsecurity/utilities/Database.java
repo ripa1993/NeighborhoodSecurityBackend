@@ -16,7 +16,6 @@ public class Database {
 	 */
 	static Connection getConnection() throws URISyntaxException, SQLException {
 	    URI jdbUri = new URI(System.getenv("JAWSDB_URL"));
-	    System.out.println(jdbUri);
 
 	    String username = jdbUri.getUserInfo().split(":")[0];
 	    String password = jdbUri.getUserInfo().split(":")[1];

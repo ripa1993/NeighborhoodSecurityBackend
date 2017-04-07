@@ -47,6 +47,7 @@ public class DatabaseUsers {
 			connection.close();
 			return id;
 		} catch (URISyntaxException | SQLException e) {
+			System.err.println(e.getMessage());
 			return -1;
 		}
 	}

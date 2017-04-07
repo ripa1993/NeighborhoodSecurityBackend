@@ -17,6 +17,7 @@ public class DatabaseUsers {
 		Connection connection;
 		try {
 			connection = Database.getConnection();
+			System.out.println("[DB] Connection established");
 			PreparedStatement createStmt = connection.prepareStatement("INSERT INTO gsx95369n3oh2zo6.users (USERNAME, EMAIL, CREATED) VALUES (?,?,?)",Statement.RETURN_GENERATED_KEYS);
 			createStmt.clearParameters();
 			createStmt.setString(1, u.getUsername());

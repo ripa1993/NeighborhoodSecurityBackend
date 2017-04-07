@@ -68,7 +68,7 @@ public class DatabaseEvents {
 		Connection connection;
 		try {
 			connection = Database.getConnection();
-			PreparedStatement deleteStmt = connection.prepareStatement("DELETE FROM gsx95369n3oh2zo6.events WHERE ID == ?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+			PreparedStatement deleteStmt = connection.prepareStatement("DELETE FROM gsx95369n3oh2zo6.events WHERE ID = ?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			deleteStmt.clearParameters();
 			deleteStmt.setInt(1, id);
 			deleteStmt.executeUpdate();
@@ -139,7 +139,7 @@ public class DatabaseEvents {
 		Connection connection;
 		try {
 			connection = Database.getConnection();
-			PreparedStatement getStmt = connection.prepareStatement("SELECT * FROM gsx95369n3oh2zo6.events WHERE ID == ?",
+			PreparedStatement getStmt = connection.prepareStatement("SELECT * FROM gsx95369n3oh2zo6.events WHERE ID = ?",
 					ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			getStmt.clearParameters();
 			getStmt.setInt(1, id);
@@ -174,7 +174,7 @@ public class DatabaseEvents {
 		Connection connection;
 		try{
 			connection = Database.getConnection();
-			PreparedStatement getStmt = connection.prepareStatement("SELECT SUBMITTERID FROM gsx95369n3oh2zo6.events WHERE ID == ?",
+			PreparedStatement getStmt = connection.prepareStatement("SELECT SUBMITTERID FROM gsx95369n3oh2zo6.events WHERE ID = ?",
 					ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			getStmt.clearParameters();
 			getStmt.setInt(1, id);

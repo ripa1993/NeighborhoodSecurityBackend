@@ -39,7 +39,7 @@ public class DatabaseUsers {
 			}
 						
 			System.out.println("[DB] Beginning user authorization creation for "+u);
-			PreparedStatement createStmt2 = connection.prepareStatement("INSERT INTO gsx95369n3oh2zo6.authorization (USERID, SUPERUSER, TOKEN) VALUES (?,?,?)");
+			PreparedStatement createStmt2 = connection.prepareStatement("INSERT INTO gsx95369n3oh2zo6.authorization (ID, SUPERUSER, TOKEN) VALUES (?,?,?)");
 			System.out.println("[DB] Authorization statement prepared for "+u);
 			createStmt2.clearParameters();
 			createStmt2.setInt(1, id);
@@ -61,7 +61,8 @@ public class DatabaseUsers {
 		Connection connection;
 		try {
 			connection = Database.getConnection();
-			PreparedStatement getStmt = connection.prepareStatement("SELECT * FROM gsx95369n3oh2zo6.users WHERE ID == ?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+			
+			PreparedStatement getStmt = connection.prepareStatement("SELECT * FROM gsx95369n3oh2zo6.users WHERE ID = ?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			getStmt.clearParameters();
 			getStmt.setInt(1, id);
 			ResultSet results = getStmt.executeQuery();
@@ -85,7 +86,7 @@ public class DatabaseUsers {
 		Connection connection;
 		try {
 			connection = Database.getConnection();
-			PreparedStatement getStmt = connection.prepareStatement("SELECT * FROM gsx95369n3oh2zo6.users WHERE EMAIL == ?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+			PreparedStatement getStmt = connection.prepareStatement("SELECT * FROM gsx95369n3oh2zo6.users WHERE EMAIL = ?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			getStmt.clearParameters();
 			getStmt.setString(1, email);
 			ResultSet results = getStmt.executeQuery();
@@ -109,7 +110,7 @@ public class DatabaseUsers {
 		Connection connection;
 		try{
 			connection = Database.getConnection();
-			PreparedStatement delStmt = connection.prepareStatement("DELETE FROM gsx95369n3oh2zo6.users WHERE ID == ?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+			PreparedStatement delStmt = connection.prepareStatement("DELETE FROM gsx95369n3oh2zo6.users WHERE ID = ?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			delStmt.clearParameters();
 			delStmt.setInt(1, id);
 			delStmt.executeUpdate();
@@ -124,7 +125,7 @@ public class DatabaseUsers {
 		Connection connection;
 		try{
 			connection = Database.getConnection();
-			PreparedStatement createStmt = connection.prepareStatement("INSERT INTO gsx95369n3oh2zo6.secret (IDUSER, PASSWORD) VALUES (?,?)");
+			PreparedStatement createStmt = connection.prepareStatement("INSERT INTO gsx95369n3oh2zo6.secret (ID, PASSWORD) VALUES (?,?)");
 			createStmt.clearParameters();
 			createStmt.setInt(1, id);
 			createStmt.setString(2, password);

@@ -15,12 +15,9 @@ public class Database {
 	 * @throws SQLException
 	 */
 	static Connection getConnection() throws URISyntaxException, SQLException {
-		URI jdbUri = new URI(System.getenv("JAWSDB_URL"));
-
-		String username = jdbUri.getUserInfo().split(":")[0];
-		String password = jdbUri.getUserInfo().split(":")[1];
-		String port = String.valueOf(jdbUri.getPort());
-		String jdbUrl = "jdbc:mysql://" + jdbUri.getHost() + ":" + port + jdbUri.getPath();
+		String username = "qgeughr454j5fu0f";
+		String password = "eq7okgrs9g08t28d";
+		String jdbUrl = "gk90usy5ik2otcvi.cbetxkdyhwsb.us-east-1.rds.amazonaws.com:3306/gsx95369n3oh2zo6";
 
 		return DriverManager.getConnection(jdbUrl, username, password);
 	}

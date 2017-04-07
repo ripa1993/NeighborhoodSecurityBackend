@@ -86,19 +86,48 @@ public class EventsResource {
 		return Response.status(Status.BAD_REQUEST).entity("Please check the parameters!").build();
 	}
 
+	/**
+	 * Create a new event
+	 * 
+	 * @param eventType
+	 *            type of the event (mandatory)
+	 * @param description
+	 *            of the event
+	 * 
+	 *            Required to provide position as name of the location:
+	 * @param country
+	 *            of the event
+	 * @param city
+	 *            of the event
+	 * @param street
+	 *            of the event
+	 * 
+	 *            Or as coordinates:
+	 * @param latitude
+	 *            of the event
+	 * @param longitude
+	 *            of the event
+	 * 
+	 * @param authToken
+	 *            (mandatory), used to assign the creator to the event
+	 * @return UNAUTHORIZED if auth_token is invalid, BAD_REQUEST if the event
+	 *         cannot be created with that parameters, CREATED if the event was
+	 *         successfully created
+	 */
 	@POST
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	public Response createEvent(@FormParam("eventType") String eventType, @FormParam("description") String description,
 			@FormParam("country") String country, @FormParam("city") String city, @FormParam("street") String street,
-			@FormParam("latitude") String latitude, @FormParam("longitude") String longitude, @HeaderParam("auth_token") String authToken) {
+			@FormParam("latitude") String latitude, @FormParam("longitude") String longitude,
+			@HeaderParam("auth_token") String authToken) {
 
 		int userId = Authenticator.getUserId(authToken);
-		
-		if(userId < 0){
+
+		if (userId < 0) {
 			return Response.status(Status.UNAUTHORIZED).entity("Your auth token is not valid!").build();
 		}
-		
+
 		EventType et = EventType.valueOf(eventType);
 
 		if (NumberUtils.isNumber(latitude) && NumberUtils.isNumber(longitude)) {
@@ -178,39 +207,42 @@ public class EventsResource {
 		return Response.status(Status.BAD_REQUEST).entity("Id must be a valid positive integer!").build();
 
 	}
-	
+
 	/**
 	 * Removes the event with the specified id
-	 * @param id of the event
-	 * @return NO_CONTENT if delete was successfull, NOT_FOUND if there is no event with that id, BAD_REQUEST if id is not valid
+	 * 
+	 * @param id
+	 *            of the event
+	 * @return NO_CONTENT if delete was successfull, NOT_FOUND if there is no
+	 *         event with that id, BAD_REQUEST if id is not valid
 	 */
 	@DELETE
 	@Path("{id}")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	public Response deleteEvent(@PathParam("id") String id, @HeaderParam("auth_token") String authToken) {
 		if (NumberUtils.isNumber(id)) {
-			
-			
+
 			int requestingUser = Authenticator.getUserId(authToken);
 			boolean superuser = Authenticator.isSuperuser(requestingUser);
 			int ownerUser = EventStorage.instance.getSubmitter(NumberUtils.toInt(id));
-			
-			if(requestingUser != ownerUser || !superuser){
-				return Response.status(Status.UNAUTHORIZED).entity("You are not the owner of event "+id).build();
+
+			if (requestingUser != ownerUser || !superuser) {
+				return Response.status(Status.UNAUTHORIZED).entity("You are not the owner of event " + id).build();
 			}
-			
+
 			boolean result = EventStorage.instance.remove(NumberUtils.toInt(id));
-			if(result){
+			if (result) {
 				return Response.status(Status.NO_CONTENT).build();
 			} else {
-				return Response.status(Status.NOT_FOUND).entity("No event with id "+id).build();
+				return Response.status(Status.NOT_FOUND).entity("No event with id " + id).build();
 			}
 		}
 		return Response.status(Status.BAD_REQUEST).entity("Id must be a valid positive integer!").build();
 	}
-	
+
 	/**
 	 * Find coordinates given country, city and street
+	 * 
 	 * @param country
 	 * @param city
 	 * @param street
@@ -256,6 +288,7 @@ public class EventsResource {
 
 	/**
 	 * Find country, city, address given the coordinates
+	 * 
 	 * @param latitude
 	 * @param longitude
 	 * @return [country, city, address] if applicable

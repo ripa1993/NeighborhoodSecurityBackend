@@ -33,9 +33,11 @@ import org.json.JSONObject;
 
 import it.polimi.moscowmule.neighborhoodsecurity.authentication.Authenticator;
 import it.polimi.moscowmule.neighborhoodsecurity.utilities.ProjectConstants;
+import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.AuthorizationDBException;
 import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.EventDBException;
 import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.NoEventCreatedException;
 import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.NoEventFoundException;
+import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.NoUserFoundException;
 
 @Path("/events")
 public class EventsResource {
@@ -138,9 +140,12 @@ public class EventsResource {
 			@FormParam("latitude") String latitude, @FormParam("longitude") String longitude,
 			@HeaderParam("auth_token") String authToken) {
 
-		int userId = Authenticator.getUserId(authToken);
-
-		if (userId < 0) {
+		int userId;
+		try {
+			userId = Authenticator.getUserId(authToken);
+		} catch (AuthorizationDBException e2) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e2.getMessage()).build();
+		} catch (NoUserFoundException e2) {
 			return Response.status(Status.UNAUTHORIZED).entity("Your auth token is not valid!").build();
 		}
 
@@ -248,8 +253,27 @@ public class EventsResource {
 	public Response deleteEvent(@PathParam("id") String id, @HeaderParam("auth_token") String authToken) {
 		if (NumberUtils.isNumber(id)) {
 
-			int requestingUser = Authenticator.getUserId(authToken);
-			boolean superuser = Authenticator.isSuperuser(requestingUser);
+			// find who is requesting the delete
+			int requestingUser;
+			try {
+				requestingUser = Authenticator.getUserId(authToken);
+			} catch (AuthorizationDBException e2) {
+				return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e2.getMessage()).build();
+			} catch (NoUserFoundException e2) {
+				return Response.status(Status.UNAUTHORIZED).entity("Your auth token is not valid!").build();
+			}			
+			// find if he is superuser
+			boolean superuser;
+			try {
+				superuser = Authenticator.isSuperuser(requestingUser);
+			} catch (NoUserFoundException e1) {
+				// should never happen!
+				return Response.status(Status.INTERNAL_SERVER_ERROR).entity("User disappeared! Something went really wrong :(").build();
+			} catch (AuthorizationDBException e1) {
+				return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e1.getMessage()).build();
+			}
+			
+			// find the owner of the event
 			int ownerUser;
 			try {
 				ownerUser = EventStorage.instance.getSubmitter(NumberUtils.toInt(id));

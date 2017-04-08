@@ -129,9 +129,9 @@ public class UsersResource {
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	public Response getUserEvents(@PathParam("id") String id) {
 		if (NumberUtils.isNumber(id)) {
-			User u;
 			try {
-				u = UserStorage.instance.getById(NumberUtils.toInt(id));
+				// just used to generate exception if user does not exist!
+				UserStorage.instance.getById(NumberUtils.toInt(id));
 				// finding events for this user
 				List<Event> events = EventStorage.instance.getByUser(NumberUtils.toInt(id));
 				return Response.ok(events).build();

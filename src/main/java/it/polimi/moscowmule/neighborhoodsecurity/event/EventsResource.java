@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
+import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -32,6 +33,9 @@ import org.json.JSONObject;
 
 import it.polimi.moscowmule.neighborhoodsecurity.authentication.Authenticator;
 import it.polimi.moscowmule.neighborhoodsecurity.utilities.ProjectConstants;
+import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.EventDBException;
+import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.NoEventCreatedException;
+import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.NoEventFoundException;
 
 @Path("/events")
 public class EventsResource {
@@ -72,8 +76,13 @@ public class EventsResource {
 			longitudeMin = NumberUtils.toFloat(lonMin);
 			longitudeMax = NumberUtils.toFloat(lonMax);
 
-			return Response.ok(EventStorage.instance.getByArea(latitudeMin, latitudeMax, longitudeMin, longitudeMax))
-					.build();
+			try {
+				List<Event> events = EventStorage.instance.getByArea(latitudeMin, latitudeMax, longitudeMin,
+						longitudeMax);
+				return Response.ok(events).build();
+			} catch (EventDBException e) {
+				return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+			}
 		}
 		if (NumberUtils.isNumber(lat) && NumberUtils.isNumber(lon) && NumberUtils.isNumber(rad)) {
 			Float latitude, longitude, radius;
@@ -81,7 +90,14 @@ public class EventsResource {
 			longitude = NumberUtils.toFloat(lon);
 			radius = NumberUtils.toFloat(rad);
 
-			return Response.ok(EventStorage.instance.getByRadius(latitude, longitude, radius)).build();
+			try {
+				List<Event> events = EventStorage.instance.getByRadius(latitude, longitude, radius);
+				return Response.ok(events).build();
+
+			} catch (EventDBException e) {
+				return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+
+			}
 		}
 		return Response.status(Status.BAD_REQUEST).entity("Please check the parameters!").build();
 	}
@@ -146,13 +162,15 @@ public class EventsResource {
 			e.setLongitude(lon);
 			e.setSubmitterId(userId);
 
+			int id;
 			try {
-				int id = EventStorage.instance.add(e);
-				return Response.created(URI.create(ProjectConstants.EVENTS_BASE_URL + "/" + String.valueOf(id)))
-						.build();
-			} catch (MalformedEvent e1) {
-				return Response.status(Status.BAD_REQUEST).entity("Something went wrong").build();
+				id = EventStorage.instance.add(e);
+			} catch (EventDBException e1) {
+				return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e1.getMessage()).build();
+			} catch (NoEventCreatedException e1) {
+				return Response.status(Status.BAD_REQUEST).entity("Please check the passed parameters!").build();
 			}
+			return Response.created(URI.create(ProjectConstants.EVENTS_BASE_URL + "/" + String.valueOf(id))).build();
 
 		} else {
 			float[] coordinates = getCoordinates(country, city, street);
@@ -176,13 +194,15 @@ public class EventsResource {
 			e.setLongitude(lon);
 			e.setSubmitterId(userId);
 
+			int id;
 			try {
-				int id = EventStorage.instance.add(e);
-				return Response.created(URI.create(ProjectConstants.EVENTS_BASE_URL + "/" + String.valueOf(id)))
-						.build();
-			} catch (MalformedEvent e1) {
-				return Response.status(Status.BAD_REQUEST).entity("Something went wrong").build();
+				id = EventStorage.instance.add(e);
+			} catch (EventDBException e1) {
+				return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e1.getMessage()).build();
+			} catch (NoEventCreatedException e1) {
+				return Response.status(Status.BAD_REQUEST).entity("Please check the passed parameters!").build();
 			}
+			return Response.created(URI.create(ProjectConstants.EVENTS_BASE_URL + "/" + String.valueOf(id))).build();
 		}
 	}
 
@@ -198,11 +218,17 @@ public class EventsResource {
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	public Response getEventById(@PathParam("id") String id) {
 		if (NumberUtils.isNumber(id)) {
-			Event e = EventStorage.instance.getById(NumberUtils.toInt(id));
-			if (e == null) {
+			Event e;
+			try {
+				e = EventStorage.instance.getById(NumberUtils.toInt(id));
+				return Response.ok(e).build();
+			} catch (NoEventFoundException e1) {
 				return Response.status(Status.NOT_FOUND).entity("No event with id " + id + " has been found").build();
+
+			} catch (EventDBException e1) {
+				return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e1.getMessage()).build();
+
 			}
-			return Response.ok(e).build();
 		}
 		return Response.status(Status.BAD_REQUEST).entity("Id must be a valid positive integer!").build();
 
@@ -224,17 +250,27 @@ public class EventsResource {
 
 			int requestingUser = Authenticator.getUserId(authToken);
 			boolean superuser = Authenticator.isSuperuser(requestingUser);
-			int ownerUser = EventStorage.instance.getSubmitter(NumberUtils.toInt(id));
+			int ownerUser;
+			try {
+				ownerUser = EventStorage.instance.getSubmitter(NumberUtils.toInt(id));
+			} catch (EventDBException e) {
+				return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+			} catch (NoEventFoundException e) {
+				return Response.status(Status.NOT_FOUND).entity("No event with id " + id).build();
+			}
 
 			if (requestingUser != ownerUser || !superuser) {
 				return Response.status(Status.UNAUTHORIZED).entity("You are not the owner of event " + id).build();
 			}
 
-			boolean result = EventStorage.instance.remove(NumberUtils.toInt(id));
+			boolean result;
+			try {
+				result = EventStorage.instance.remove(NumberUtils.toInt(id));
+			} catch (EventDBException e) {
+				return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+			}
 			if (result) {
 				return Response.status(Status.NO_CONTENT).build();
-			} else {
-				return Response.status(Status.NOT_FOUND).entity("No event with id " + id).build();
 			}
 		}
 		return Response.status(Status.BAD_REQUEST).entity("Id must be a valid positive integer!").build();

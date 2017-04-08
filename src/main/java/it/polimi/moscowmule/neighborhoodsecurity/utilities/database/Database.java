@@ -1,4 +1,4 @@
-package it.polimi.moscowmule.neighborhoodsecurity.utilities;
+package it.polimi.moscowmule.neighborhoodsecurity.utilities.database;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -15,7 +15,7 @@ public class Database {
 	 * @throws SQLException
 	 * @throws ClassNotFoundException 
 	 */
-	static Connection getConnection() throws URISyntaxException, SQLException, ClassNotFoundException {
+	public static Connection getConnection() throws URISyntaxException, SQLException, ClassNotFoundException {
 		
 		DriverManager.registerDriver(new com.mysql.jdbc.Driver());
 		

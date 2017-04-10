@@ -46,6 +46,10 @@ public class Event {
 	 */
 	private Float longitude;
 	/**
+	 * number of votes
+	 */
+	private int votes;
+	/**
 	 * foreign key, user that submitted the event
 	 */
 	private int submitterId;
@@ -158,6 +162,14 @@ public class Event {
 
 	public void setSubmitterUrl(String submitterUrl) {
 		this.submitterUrl = submitterUrl;
+	}
+
+	public int getVotes() {
+		return votes;
+	}
+
+	public void setVotes(int votes) {
+		this.votes = votes;
 	}
 	
 	

@@ -50,6 +50,7 @@ public class UsersResource {
 	 *         username/email already in use, CREATED if the user was
 	 *         successfully created
 	 */
+	@Path("classic")
 	@POST
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)

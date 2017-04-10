@@ -14,6 +14,8 @@ import it.polimi.moscowmule.neighborhoodsecurity.utilities.database.Database;
 import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.EventDBException;
 import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.NoEventCreatedException;
 import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.NoEventFoundException;
+import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.NoVoteCreatedException;
+import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.VotesDBException;
 
 public enum EventStorage {
 	instance;
@@ -132,6 +134,14 @@ public enum EventStorage {
 				temp.setLatitude(result.getFloat(8));
 				temp.setLongitude(result.getFloat(9));
 				temp.setSubmitterId(result.getInt(10));
+				
+				try {
+					int votes = getVotes(temp.getId());
+					temp.setVotes(votes);
+				} catch (VotesDBException e) {
+					temp.setVotes(0);
+				}
+				
 				events.add(temp);
 			}
 			connection.close();
@@ -189,6 +199,14 @@ public enum EventStorage {
 				temp.setLatitude(result.getFloat(8));
 				temp.setLongitude(result.getFloat(9));
 				temp.setSubmitterId(result.getInt(10));
+				
+				try {
+					int votes = getVotes(temp.getId());
+					temp.setVotes(votes);
+				} catch (VotesDBException e) {
+					temp.setVotes(0);
+				}
+				
 				connection.close();
 				return temp;
 			} else {
@@ -248,6 +266,47 @@ public enum EventStorage {
 			return events;
 		} catch (ClassNotFoundException | URISyntaxException | SQLException e) {
 			throw new EventDBException("ERROR when finding events by submitter id", e);
+		}
+	}
+
+	public boolean vote(int userid, int eventid) throws VotesDBException, NoVoteCreatedException {
+		Connection connection;
+		try {
+			connection = Database.getConnection();
+			PreparedStatement createStmt = connection.prepareStatement("INSERT INTO gsx95369n3oh2zo6.votes (USERID, EVENTID) VALUES (?,?)", Statement.RETURN_GENERATED_KEYS);
+			createStmt.clearParameters();
+			createStmt.setInt(1, userid);
+			createStmt.setInt(2, eventid);
+			createStmt.executeUpdate();
+			ResultSet results = createStmt.getGeneratedKeys();
+			if(results.next()){
+				return true;
+			} else {
+				throw new NoVoteCreatedException();
+			}
+		} catch (ClassNotFoundException | URISyntaxException | SQLException e) {
+			throw new VotesDBException("ERROR when creating vote", e);
+		}
+		
+		
+	}
+	
+	public int getVotes(int eventId) throws VotesDBException{
+		Connection connection;
+		try {
+			connection = Database.getConnection();
+			PreparedStatement getStmt = connection.prepareStatement("SELECT COUNT(*) FROM gsx95369n3oh2zo6.votes WHERE EVENTID = ?", ResultSet.TYPE_SCROLL_INSENSITIVE,
+					ResultSet.CONCUR_READ_ONLY);
+			getStmt.clearParameters();
+			getStmt.setInt(1, eventId);
+			ResultSet results = getStmt.executeQuery();
+			if(results.next()){
+				return results.getInt(1);
+			} else {
+				return 0;
+			}
+		} catch (ClassNotFoundException | URISyntaxException | SQLException e) {
+			throw new VotesDBException("EROR when finding vote",e);
 		}
 	}
 }

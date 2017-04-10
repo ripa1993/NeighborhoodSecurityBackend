@@ -38,6 +38,8 @@ import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.EventDBExc
 import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.NoEventCreatedException;
 import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.NoEventFoundException;
 import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.NoUserFoundException;
+import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.NoVoteCreatedException;
+import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.VotesDBException;
 
 @Path("/events")
 public class EventsResource {
@@ -261,18 +263,19 @@ public class EventsResource {
 				return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e2.getMessage()).build();
 			} catch (NoUserFoundException e2) {
 				return Response.status(Status.UNAUTHORIZED).entity("Your auth token is not valid!").build();
-			}			
+			}
 			// find if he is superuser
 			boolean superuser;
 			try {
 				superuser = Authenticator.isSuperuser(requestingUser);
 			} catch (NoUserFoundException e1) {
 				// should never happen!
-				return Response.status(Status.INTERNAL_SERVER_ERROR).entity("User disappeared! Something went really wrong :(").build();
+				return Response.status(Status.INTERNAL_SERVER_ERROR)
+						.entity("User disappeared! Something went really wrong :(").build();
 			} catch (AuthorizationDBException e1) {
 				return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e1.getMessage()).build();
 			}
-			
+
 			// find the owner of the event
 			int ownerUser;
 			try {
@@ -295,6 +298,44 @@ public class EventsResource {
 			}
 			if (result) {
 				return Response.status(Status.NO_CONTENT).build();
+			}
+		}
+		return Response.status(Status.BAD_REQUEST).entity("Id must be a valid positive integer!").build();
+	}
+
+	@POST
+	@Path("{id}/vote")
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	public Response vote(@PathParam("id") String eventId, @HeaderParam("auth_token") String authToken) {
+
+		// check if user is valid
+		int userId;
+		try {
+			userId = Authenticator.getUserId(authToken);
+		} catch (AuthorizationDBException e2) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e2.getMessage()).build();
+		} catch (NoUserFoundException e2) {
+			return Response.status(Status.UNAUTHORIZED).entity("Your auth token is not valid!").build();
+		}
+
+		// check if event is valid
+		try {
+			EventStorage.instance.getById(NumberUtils.toInt(eventId));
+		} catch (NoEventFoundException e1) {
+			return Response.status(Status.NOT_FOUND).entity("No event with id " + eventId + " has been found").build();
+		} catch (EventDBException e1) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e1.getMessage()).build();
+		}
+		
+		// submit the vote
+		if (NumberUtils.isNumber(eventId)) {
+			try {
+				EventStorage.instance.vote(userId, NumberUtils.toInt(eventId));
+				return Response.status(Status.NO_CONTENT).build();
+			} catch (VotesDBException e) {
+				return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+			} catch (NoVoteCreatedException e) {
+				return Response.status(Status.NO_CONTENT).entity("This user already voted this event!").build();
 			}
 		}
 		return Response.status(Status.BAD_REQUEST).entity("Id must be a valid positive integer!").build();

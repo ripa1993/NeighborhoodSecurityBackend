@@ -83,12 +83,16 @@ public enum EventStorage {
 					ResultSet.CONCUR_READ_ONLY);
 			deleteStmt.clearParameters();
 			deleteStmt.setInt(1, id);
-			deleteStmt.executeUpdate();
+			int count = deleteStmt.executeUpdate();
 			connection.close();
+			if (count > 0) {
+				return true;
+			} else {
+				return false;
+			}
 		} catch (URISyntaxException | SQLException | ClassNotFoundException e) {
 			throw new EventDBException("ERROR in deleting event by id", e);
 		}
-		return true;
 	}
 
 	/**
@@ -291,6 +295,28 @@ public enum EventStorage {
 		
 	}
 	
+	public boolean unvote(int userid, int eventid) throws VotesDBException{
+		Connection connection;
+		try {
+			connection = Database.getConnection();
+			PreparedStatement delStmt = connection.prepareStatement("DELETE FROM gsx95369n3oh2zo6.votes WHERE USERID = ? AND EVENTID = ?", ResultSet.TYPE_SCROLL_INSENSITIVE,
+					ResultSet.CONCUR_READ_ONLY);
+			delStmt.clearParameters();
+			delStmt.setInt(1, userid);
+			delStmt.setInt(2, eventid);
+			int count = delStmt.executeUpdate();
+			connection.close();
+			if (count > 0){
+				return true;
+			} else {
+				return false;
+			}
+		} catch (ClassNotFoundException | URISyntaxException | SQLException e) {
+			throw new VotesDBException("ERROR when deleting vote", e);
+		}
+		
+	}
+	
 	public int getVotes(int eventId) throws VotesDBException{
 		Connection connection;
 		try {
@@ -300,6 +326,7 @@ public enum EventStorage {
 			getStmt.clearParameters();
 			getStmt.setInt(1, eventId);
 			ResultSet results = getStmt.executeQuery();
+			connection.close();
 			if(results.next()){
 				return results.getInt(1);
 			} else {

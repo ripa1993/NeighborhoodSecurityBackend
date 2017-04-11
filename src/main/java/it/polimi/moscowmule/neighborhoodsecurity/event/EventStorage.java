@@ -30,10 +30,8 @@ public enum EventStorage {
 	 * @throws EventDBException
 	 */
 	public int add(Event e) throws EventDBException, NoEventCreatedException {
-		Connection connection;
-
-		try {
-			connection = Database.getConnection();
+		System.out.println("[DB] Creating new event " + e);
+		try (Connection connection = Database.getConnection()) {
 			PreparedStatement createStmt = connection.prepareStatement(
 					"INSERT INTO gsx95369n3oh2zo6.events (DATE, EVENTTYPE, DESCRIPTION,"
 							+ "COUNTRY, CITY, STREET, LATITUDE, LONGITUDE, SUBMITTERID) VALUES (?,?,?,?,?,?,?,?,?)",
@@ -49,18 +47,18 @@ public enum EventStorage {
 			createStmt.setInt(9, e.getSubmitterId());
 			createStmt.executeUpdate();
 			ResultSet results = createStmt.getGeneratedKeys();
-			int id = -1;
+			System.out.println("[DB] Update executed");
 			if (results.next()) {
-				id = results.getInt(1);
-			}
-
-			if (id == -1) {
+				int id = results.getInt(1);
+				System.out.println("[DB] Created event id " + id);
+				return id;
+			} else {
+				System.out.println("[DB] No event created");
 				throw new NoEventCreatedException();
 			}
-
-			connection.close();
-			return id;
 		} catch (SQLException | URISyntaxException | ClassNotFoundException e1) {
+			System.out.println("[DB] EXCEPTION in EventStorage.add()");
+			System.out.println(e1.getMessage());
 			throw new EventDBException("ERROR when creating event", e1);
 		}
 	}
@@ -74,23 +72,26 @@ public enum EventStorage {
 	 * @throws EventDBException
 	 */
 	public boolean remove(int id) throws EventDBException {
+		System.out.println("[DB] Removing event with id " + id);
+		try (Connection connection = Database.getConnection()) {
 
-		Connection connection;
-		try {
-			connection = Database.getConnection();
 			PreparedStatement deleteStmt = connection.prepareStatement(
 					"DELETE FROM gsx95369n3oh2zo6.events WHERE ID = ?", ResultSet.TYPE_SCROLL_INSENSITIVE,
 					ResultSet.CONCUR_READ_ONLY);
 			deleteStmt.clearParameters();
 			deleteStmt.setInt(1, id);
 			int count = deleteStmt.executeUpdate();
-			connection.close();
+			System.out.println("[DB] Update executed");
 			if (count > 0) {
+				System.out.println("[DB] Event deleted");
 				return true;
 			} else {
+				System.out.println("[DB] No event deleted");
 				return false;
 			}
 		} catch (URISyntaxException | SQLException | ClassNotFoundException e) {
+			System.out.println("[DB] EXCEPTION in EventStorage.remove()");
+			System.out.println(e.getMessage());
 			throw new EventDBException("ERROR in deleting event by id", e);
 		}
 	}
@@ -111,9 +112,9 @@ public enum EventStorage {
 	 */
 	public List<Event> getByArea(Float latitudeMin, Float latitudeMax, Float longitudeMin, Float longitudeMax)
 			throws EventDBException {
-		Connection connection;
-		try {
-			connection = Database.getConnection();
+		System.out.println("[DB] Getting list of events by area");
+		try (Connection connection = Database.getConnection()) {
+
 			PreparedStatement getStmt = connection.prepareStatement(
 					"SELECT * FROM gsx95369n3oh2zo6.events WHERE LATITUDE < ? AND LATITUDE > ? AND LONGITUDE < ? AND LONGITUDE > ?",
 					ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
@@ -123,7 +124,7 @@ public enum EventStorage {
 			getStmt.setFloat(3, longitudeMax);
 			getStmt.setFloat(4, longitudeMin);
 			ResultSet result = getStmt.executeQuery();
-
+			System.out.println("[DB] Query executed");
 			List<Event> events = new ArrayList<Event>();
 
 			while (result.next()) {
@@ -138,19 +139,24 @@ public enum EventStorage {
 				temp.setLatitude(result.getFloat(8));
 				temp.setLongitude(result.getFloat(9));
 				temp.setSubmitterId(result.getInt(10));
-				
+
 				try {
+					System.out.println("[DB] Finding votes");
 					int votes = getVotes(temp.getId());
 					temp.setVotes(votes);
+					System.out.println("[DB] Found " + votes);
 				} catch (VotesDBException e) {
+					System.out.println("[DB] No votes found");
 					temp.setVotes(0);
 				}
-				
+
 				events.add(temp);
 			}
-			connection.close();
+			System.out.println("[DB] Found " + events.size() + " events");
 			return events;
 		} catch (URISyntaxException | SQLException | ClassNotFoundException e) {
+			System.out.println("[DB] EXCEPTION in EventStorage.getByArea()");
+			System.out.println(e.getMessage());
 			throw new EventDBException("ERROR when finding events by coordinates", e);
 		}
 	}
@@ -181,15 +187,16 @@ public enum EventStorage {
 	 * @throws NoEventFoundException
 	 */
 	public Event getById(int id) throws NoEventFoundException, EventDBException {
-		Connection connection;
-		try {
-			connection = Database.getConnection();
+		System.out.println("[DB] Getting event by id " + id);
+		try (Connection connection = Database.getConnection()) {
+
 			PreparedStatement getStmt = connection.prepareStatement(
 					"SELECT * FROM gsx95369n3oh2zo6.events WHERE ID = ?", ResultSet.TYPE_SCROLL_INSENSITIVE,
 					ResultSet.CONCUR_READ_ONLY);
 			getStmt.clearParameters();
 			getStmt.setInt(1, id);
 			ResultSet result = getStmt.executeQuery();
+			System.out.println("[DB] Query executed");
 			Event temp = null;
 			if (result.next()) {
 				temp = new Event();
@@ -203,55 +210,67 @@ public enum EventStorage {
 				temp.setLatitude(result.getFloat(8));
 				temp.setLongitude(result.getFloat(9));
 				temp.setSubmitterId(result.getInt(10));
-				
+
 				try {
+					System.out.println("[DB] Finding votes");
 					int votes = getVotes(temp.getId());
 					temp.setVotes(votes);
+					System.out.println("[DB] Found " + votes);
 				} catch (VotesDBException e) {
+					System.out.println("[DB] No votes found");
 					temp.setVotes(0);
 				}
-				
-				connection.close();
+
 				return temp;
 			} else {
-				connection.close();
+				System.out.println("[DB] No event found");
 				throw new NoEventFoundException();
 			}
 
 		} catch (URISyntaxException | SQLException | ClassNotFoundException e) {
+			System.out.println("[DB] EXCEPTION in EventStorage.getById()");
+			System.out.println(e.getMessage());
 			throw new EventDBException("ERROR in finding event by id", e);
 		}
 	}
 
 	public int getSubmitter(int id) throws EventDBException, NoEventFoundException {
-		Connection connection;
-		try {
-			connection = Database.getConnection();
+		System.out.println("[DB] Getting submitter by event id " + id);
+		try (Connection connection = Database.getConnection()) {
+
 			PreparedStatement getStmt = connection.prepareStatement(
 					"SELECT SUBMITTERID FROM gsx95369n3oh2zo6.events WHERE ID = ?", ResultSet.TYPE_SCROLL_INSENSITIVE,
 					ResultSet.CONCUR_READ_ONLY);
 			getStmt.clearParameters();
 			getStmt.setInt(1, id);
 			ResultSet result = getStmt.executeQuery();
+			System.out.println("[DB] Query executed");
 			if (result.next()) {
+				System.out.println("[DB] Event found");
 				return result.getInt(1);
+			} else {
+				System.out.println("[DB] No event found");
+				throw new NoEventFoundException();
+
 			}
 		} catch (URISyntaxException | SQLException | ClassNotFoundException e) {
+			System.out.println("[DB] EXCEPTION in EventStorage.getSubmitter()");
+			System.out.println(e.getMessage());
 			throw new EventDBException("ERROR when finding submitter by event id", e);
 		}
-		throw new NoEventFoundException();
 	}
 
 	public List<Event> getByUser(int id) throws EventDBException {
-		Connection connection;
-		try {
-			connection = Database.getConnection();
+		System.out.println("[DB] Getting event by user "+id);
+		try (Connection connection = Database.getConnection()) {
+
 			PreparedStatement getStmt = connection.prepareStatement(
 					"SELECT * FROM gsx95369n3oh2zo6.events WHERE SUBMITTERID = ?", ResultSet.TYPE_SCROLL_INSENSITIVE,
 					ResultSet.CONCUR_READ_ONLY);
 			getStmt.clearParameters();
 			getStmt.setInt(1, id);
 			ResultSet result = getStmt.executeQuery();
+			System.out.println("[DB] Query executed");
 			List<Event> events = new ArrayList<Event>();
 			while (result.next()) {
 				Event temp = new Event();
@@ -265,75 +284,102 @@ public enum EventStorage {
 				temp.setLatitude(result.getFloat(8));
 				temp.setLongitude(result.getFloat(9));
 				temp.setSubmitterId(result.getInt(10));
+				
+				try {
+					System.out.println("[DB] Finding votes");
+					int votes = getVotes(temp.getId());
+					temp.setVotes(votes);
+					System.out.println("[DB] Found " + votes);
+				} catch (VotesDBException e) {
+					System.out.println("[DB] No votes found");
+					temp.setVotes(0);
+				}
+				
 				events.add(temp);
 			}
+			System.out.println("[DB] Found "+events.size()+" events");
 			return events;
 		} catch (ClassNotFoundException | URISyntaxException | SQLException e) {
+			System.out.println("[DB] EXCEPTION in EventStorage.getByUser()");
+			System.out.println(e.getMessage());
 			throw new EventDBException("ERROR when finding events by submitter id", e);
 		}
 	}
 
 	public boolean vote(int userid, int eventid) throws VotesDBException, NoVoteCreatedException {
-		Connection connection;
-		try {
-			connection = Database.getConnection();
-			PreparedStatement createStmt = connection.prepareStatement("INSERT INTO gsx95369n3oh2zo6.votes (USERID, EVENTID) VALUES (?,?)", Statement.RETURN_GENERATED_KEYS);
+		System.out.println("[DB] Voting by "+userid+" to "+eventid);
+		try (Connection connection = Database.getConnection()) {
+
+			PreparedStatement createStmt = connection.prepareStatement(
+					"INSERT INTO gsx95369n3oh2zo6.votes (USERID, EVENTID) VALUES (?,?)",
+					Statement.RETURN_GENERATED_KEYS);
 			createStmt.clearParameters();
 			createStmt.setInt(1, userid);
 			createStmt.setInt(2, eventid);
-			createStmt.executeUpdate();
-			ResultSet results = createStmt.getGeneratedKeys();
-			if(results.next()){
+			int result = createStmt.executeUpdate();
+			System.out.println("[DB] Update executed");
+			if (result > 0) {
+				System.out.println("[DB] Vote created");
 				return true;
 			} else {
+				System.out.println("[DB] Vote not created");
 				throw new NoVoteCreatedException();
 			}
 		} catch (ClassNotFoundException | URISyntaxException | SQLException e) {
+			System.out.println("[DB] EXCEPTION in EventStorage.vote()");
+			System.out.println(e.getMessage());
 			throw new VotesDBException("ERROR when creating vote", e);
 		}
-		
-		
+
 	}
-	
-	public boolean unvote(int userid, int eventid) throws VotesDBException{
-		Connection connection;
-		try {
-			connection = Database.getConnection();
-			PreparedStatement delStmt = connection.prepareStatement("DELETE FROM gsx95369n3oh2zo6.votes WHERE USERID = ? AND EVENTID = ?", ResultSet.TYPE_SCROLL_INSENSITIVE,
-					ResultSet.CONCUR_READ_ONLY);
+
+	public boolean unvote(int userid, int eventid) throws VotesDBException {
+		System.out.println("[DB] Removing vote by "+userid+" from "+eventid);
+		try (Connection connection = Database.getConnection()) {
+
+			PreparedStatement delStmt = connection.prepareStatement(
+					"DELETE FROM gsx95369n3oh2zo6.votes WHERE USERID = ? AND EVENTID = ?",
+					ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			delStmt.clearParameters();
 			delStmt.setInt(1, userid);
 			delStmt.setInt(2, eventid);
 			int count = delStmt.executeUpdate();
-			connection.close();
-			if (count > 0){
+			System.out.println("[DB] Update executed");
+			if (count > 0) {
+				System.out.println("[DB] Vote removed");
 				return true;
 			} else {
+				System.out.println("[DB] Vote already removed");
 				return false;
 			}
 		} catch (ClassNotFoundException | URISyntaxException | SQLException e) {
+			System.out.println("[DB] EXCEPTION in EventStorage.unvote()");
+			System.out.println(e.getMessage());
 			throw new VotesDBException("ERROR when deleting vote", e);
 		}
-		
+
 	}
-	
-	public int getVotes(int eventId) throws VotesDBException{
-		Connection connection;
-		try {
-			connection = Database.getConnection();
-			PreparedStatement getStmt = connection.prepareStatement("SELECT COUNT(*) FROM gsx95369n3oh2zo6.votes WHERE EVENTID = ?", ResultSet.TYPE_SCROLL_INSENSITIVE,
+
+	public int getVotes(int eventId) throws VotesDBException {
+		System.out.println("[DB] Getting votes for event "+eventId);
+		try (Connection connection = Database.getConnection()) {
+
+			PreparedStatement getStmt = connection.prepareStatement(
+					"SELECT COUNT(*) FROM gsx95369n3oh2zo6.votes WHERE EVENTID = ?", ResultSet.TYPE_SCROLL_INSENSITIVE,
 					ResultSet.CONCUR_READ_ONLY);
 			getStmt.clearParameters();
 			getStmt.setInt(1, eventId);
 			ResultSet results = getStmt.executeQuery();
-			connection.close();
-			if(results.next()){
+			System.out.println("[DB] Query executed");
+			if (results.next()){
 				return results.getInt(1);
 			} else {
 				return 0;
 			}
 		} catch (ClassNotFoundException | URISyntaxException | SQLException e) {
-			throw new VotesDBException("EROR when finding vote",e);
+			System.out.println("[DB] EXCEPTION in EventStorage.getVotes()");
+			System.out.println(e.getMessage());
+			throw new VotesDBException("EROR when finding vote", e);
 		}
 	}
 }

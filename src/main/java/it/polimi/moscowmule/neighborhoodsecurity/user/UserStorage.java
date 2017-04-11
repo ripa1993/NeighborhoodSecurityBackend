@@ -137,12 +137,13 @@ public enum UserStorage {
 
 			System.out.println("[DB] Beginning user authorization creation for " + u);
 			PreparedStatement createStmt2 = connection.prepareStatement(
-					"INSERT INTO gsx95369n3oh2zo6.authorization (ID, SUPERUSER, TOKEN) VALUES (?,?,?)");
+					"INSERT INTO gsx95369n3oh2zo6.authorization (ID, SUPERUSER, TOKEN, ISVALID) VALUES (?,?,?,?)");
 			System.out.println("[DB] Authorization statement prepared for " + u);
 			createStmt2.clearParameters();
 			createStmt2.setInt(1, id);
 			createStmt2.setInt(2, 0);
 			createStmt2.setString(3, "");
+			createStmt2.setInt(4, 0);
 			createStmt2.executeUpdate();
 			System.out.println("[DB] Completed creation of " + u);
 			connection.close();

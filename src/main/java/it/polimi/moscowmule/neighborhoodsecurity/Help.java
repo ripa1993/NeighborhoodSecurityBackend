@@ -33,8 +33,8 @@ public class Help {
     	txt += "\n + /users/classic POST -> Create user using email, username and password";
     	txt += "\n + /users/{id} GET -> Detail of an user";
     	txt += "\n + /users/{id}/events GET -> Events posted by an user";
-    	txt += "\n + /login/classic POST -> Login using username and password";
-    	txt += "\n + /logout POST -> Invalidates an authentication token";
+    	txt += "\n + /auth/classic POST -> Login using username and password";
+    	txt += "\n + /auth/logout POST -> Invalidates an authentication token";
 
     	return txt;
     }

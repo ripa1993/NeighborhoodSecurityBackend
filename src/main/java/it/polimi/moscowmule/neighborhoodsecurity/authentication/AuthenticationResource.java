@@ -16,10 +16,11 @@ import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.Authorizat
 import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.NoUserFoundException;
 import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.SecretDBException;
 
+@Path("auth")
 public class AuthenticationResource {
 
 	@POST
-	@Path("/login/classic")
+	@Path("/classic")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	public Response loginClassic(@FormParam("username") String username, @FormParam("password") String password ) {

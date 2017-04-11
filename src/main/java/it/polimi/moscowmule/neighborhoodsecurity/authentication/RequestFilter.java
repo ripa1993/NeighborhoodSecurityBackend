@@ -28,7 +28,7 @@ public class RequestFilter implements ContainerRequestFilter {
 		}
 
 		// allow help page
-		if (path.startsWith("/help")) {
+		if (path.startsWith("help")) {
 			return;
 		}
 		
@@ -47,7 +47,7 @@ public class RequestFilter implements ContainerRequestFilter {
 		}
 
 		// authorize login
-		if (path.startsWith("/login")) {
+		if (path.startsWith("login")) {
 			return;
 		}
 

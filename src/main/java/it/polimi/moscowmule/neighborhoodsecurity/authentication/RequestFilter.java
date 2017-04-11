@@ -25,6 +25,12 @@ public class RequestFilter implements ContainerRequestFilter {
 			return;
 		}
 
+		// allow help page
+		if (path.startsWith("/help")) {
+			return;
+		}
+		
+		
 		// check if service key exists and is valid
 		String serviceKey = requestContext.getHeaderString(ProjectConstants.SERVICE_KEY);
 		if (!Authenticator.isServiceKeyValid(serviceKey)) {
@@ -39,7 +45,7 @@ public class RequestFilter implements ContainerRequestFilter {
 		}
 
 		// authorize login
-		if (path.startsWith("/login") || path.startsWith("/help")) {
+		if (path.startsWith("/login")) {
 			return;
 		}
 

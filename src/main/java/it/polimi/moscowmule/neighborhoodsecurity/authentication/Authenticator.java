@@ -104,7 +104,7 @@ public class Authenticator {
 		try (Connection connection = Database.getConnection()) {
 
 			PreparedStatement getStmt = connection.prepareStatement(
-					"SELECT ID FROM gsx95369n3oh2zo6.users JOIN gsx95369n3oh2zo6.secret WHERE USERNAME = ? AND PASSWORD = ?",
+					"SELECT gsx95369n3oh2zo6.users.ID FROM gsx95369n3oh2zo6.users JOIN gsx95369n3oh2zo6.secret WHERE USERNAME = ? AND PASSWORD = ?",
 					ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			getStmt.clearParameters();
 			getStmt.setString(1, username);

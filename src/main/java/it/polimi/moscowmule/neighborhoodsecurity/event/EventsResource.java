@@ -140,7 +140,7 @@ public class EventsResource {
 	public Response createEvent(@FormParam("eventType") String eventType, @FormParam("description") String description,
 			@FormParam("country") String country, @FormParam("city") String city, @FormParam("street") String street,
 			@FormParam("latitude") String latitude, @FormParam("longitude") String longitude,
-			@HeaderParam("auth_token") String authToken) {
+			@HeaderParam(ProjectConstants.AUTH_TOKEN) String authToken) {
 
 		int userId;
 		try {
@@ -252,7 +252,7 @@ public class EventsResource {
 	@DELETE
 	@Path("{id}")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	public Response deleteEvent(@PathParam("id") String id, @HeaderParam("auth_token") String authToken) {
+	public Response deleteEvent(@PathParam("id") String id, @HeaderParam(ProjectConstants.AUTH_TOKEN) String authToken) {
 		if (NumberUtils.isNumber(id)) {
 
 			// find who is requesting the delete
@@ -306,7 +306,7 @@ public class EventsResource {
 	@POST
 	@Path("{id}/vote")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	public Response vote(@PathParam("id") String eventId, @HeaderParam("auth_token") String authToken) {
+	public Response vote(@PathParam("id") String eventId, @HeaderParam(ProjectConstants.AUTH_TOKEN) String authToken) {
 
 		// check if user is valid
 		int userId;

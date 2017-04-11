@@ -37,7 +37,7 @@ public enum UserStorage {
 	}
 
 	public User getById(int id) throws NoUserFoundException, UserDBException {
-		System.out.println("[DB] Beginning search for id"+id);
+		System.out.println("[DB] Beginning search for id" + id);
 		try (Connection connection = Database.getConnection()) {
 
 			PreparedStatement getStmt = connection.prepareStatement("SELECT * FROM gsx95369n3oh2zo6.users WHERE ID = ?",
@@ -45,7 +45,7 @@ public enum UserStorage {
 			getStmt.clearParameters();
 			getStmt.setInt(1, id);
 			ResultSet results = getStmt.executeQuery();
-			System.out.println("[DB] Query executed for "+id);
+			System.out.println("[DB] Query executed for " + id);
 			User u = null;
 			if (results.next()) {
 				u = new User();
@@ -53,9 +53,9 @@ public enum UserStorage {
 				u.setUsername(results.getString(2));
 				u.setEmail(results.getString(3));
 				u.setCreated(results.getDate(4));
-				System.out.println("[DB] User found with id "+id);
+				System.out.println("[DB] User found with id " + id);
 			} else {
-				System.out.println("[DB] No user found with id "+id);
+				System.out.println("[DB] No user found with id " + id);
 				throw new NoUserFoundException();
 			}
 
@@ -68,14 +68,14 @@ public enum UserStorage {
 	}
 
 	public User getByEmail(String email) throws NoUserFoundException, UserDBException {
-		System.out.println("[DB] Beginning search for email"+email);
+		System.out.println("[DB] Beginning search for email" + email);
 		try (Connection connection = Database.getConnection()) {
 			PreparedStatement getStmt = connection.prepareStatement(
 					"SELECT * FROM gsx95369n3oh2zo6.users WHERE EMAIL = ?", ResultSet.TYPE_SCROLL_INSENSITIVE,
 					ResultSet.CONCUR_READ_ONLY);
 			getStmt.clearParameters();
 			getStmt.setString(1, email);
-			System.out.println("[DB] Query executed for "+email);
+			System.out.println("[DB] Query executed for " + email);
 			ResultSet results = getStmt.executeQuery();
 			User u = null;
 			if (results.next()) {
@@ -84,10 +84,10 @@ public enum UserStorage {
 				u.setUsername(results.getString(2));
 				u.setEmail(results.getString(3));
 				u.setCreated(results.getDate(4));
-				System.out.println("[DB] User found with email "+email);
+				System.out.println("[DB] User found with email " + email);
 				return u;
 			} else {
-				System.out.println("[DB] No user found with email "+email);
+				System.out.println("[DB] No user found with email " + email);
 				throw new NoUserFoundException();
 			}
 		} catch (URISyntaxException | SQLException | ClassNotFoundException e) {
@@ -105,8 +105,8 @@ public enum UserStorage {
 			delStmt.clearParameters();
 			delStmt.setInt(1, id);
 			int result = delStmt.executeUpdate();
-			System.out.println("[DB] Update executed for " + id +", affected rows "+result);
-			if(result>0){
+			System.out.println("[DB] Update executed for " + id + ", affected rows " + result);
+			if (result > 0) {
 				return true;
 			} else {
 				return false;
@@ -166,10 +166,12 @@ public enum UserStorage {
 			createStmt.clearParameters();
 			createStmt.setInt(1, id);
 			createStmt.setString(2, password);
-			createStmt.executeUpdate();
-			System.out.println("[DB] Update executed for id "+id);
-			ResultSet results = createStmt.getGeneratedKeys();
-			if (!results.next()) {
+			int result = createStmt.executeUpdate();
+			System.out.println("[DB] Update executed for id " + id + ", affected rows " + result);
+			if (result > 0) {
+				System.out.println("[DB] Credential has been created");
+				return true;
+			} else {
 				// no key generated!
 				System.out.println("[DB] Credential hasn't been created");
 				throw new NoUserLoginCreatedException();
@@ -179,6 +181,5 @@ public enum UserStorage {
 			System.out.println(e.getMessage());
 			throw new SecretDBException("ERROR when creating login", e);
 		}
-		return true;
 	}
 }

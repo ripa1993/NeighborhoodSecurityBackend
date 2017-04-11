@@ -19,11 +19,11 @@ public class Help {
     @Produces(MediaType.TEXT_PLAIN)
     public String getIt() {
     	String txt = "--- NEIGHBORHOOD SECURITY v 0.0.1 ---";
-    	txt += "\n\tDesciption:";
+    	txt += "\n\n\tDescription:";
     	txt += "\n + Support JSON and XML";
     	txt += "\n + Authorization token must be passed as HTTP header in 'auth_token' field";
     	txt += "\n + Service key must be passed as HTT header in 'service_key' field";
-    	txt += "\n\tAvailable REST methods:";
+    	txt += "\n\n\tAvailable REST methods:";
     	txt += "\n + /events GET -> List of all events";
     	txt += "\n + /events POST -> Create an event";
     	txt += "\n + /events/{id} GET -> Detail of an event";

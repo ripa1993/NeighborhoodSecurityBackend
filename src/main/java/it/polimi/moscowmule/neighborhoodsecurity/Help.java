@@ -19,22 +19,22 @@ public class Help {
     @Produces(MediaType.TEXT_PLAIN)
     public String getIt() {
     	String txt = "--- NEIGHBORHOOD SECURITY v 0.0.1 ---";
-    	txt += "/n/tDesciption:";
-    	txt += "/n + Support JSON and XML";
-    	txt += "/n + Authorization token must be passed as HTTP header in 'auth_token' field";
-    	txt += "/n + Service key must be passed as HTT header in 'service_key' field";
-    	txt += "/n/tAvailable REST methods:";
-    	txt += "/n + //events GET -> List of all events";
-    	txt += "/n + //events POST -> Create an event";
-    	txt += "/n + //events//{id} GET -> Detail of an event";
-    	txt += "/n + //events//{id} DELETE -> Delete an event";
-    	txt += "/n + //events//{id}/vote POST -> Add a vote to the event";
-    	txt += "/n + //events//{id}/vote DELETE -> Delete a vote from an event";
-    	txt += "/n + //users//classic POST -> Create user using email, username and password";
-    	txt += "/n + //users//{id} GET -> Detail of an user";
-    	txt += "/n + //users//{id}//events GET -> Events posted by an user";
-    	txt += "/n + //login//classic POST -> Login using username and password";
-    	txt += "/n + //logout POST -> Invalidates an authentication token";
+    	txt += "\n\tDesciption:";
+    	txt += "\n + Support JSON and XML";
+    	txt += "\n + Authorization token must be passed as HTTP header in 'auth_token' field";
+    	txt += "\n + Service key must be passed as HTT header in 'service_key' field";
+    	txt += "\n\tAvailable REST methods:";
+    	txt += "\n + /events GET -> List of all events";
+    	txt += "\n + /events POST -> Create an event";
+    	txt += "\n + /events/{id} GET -> Detail of an event";
+    	txt += "\n + /events/{id} DELETE -> Delete an event";
+    	txt += "\n + /events/{id}/vote POST -> Add a vote to the event";
+    	txt += "\n + /events/{id}/vote DELETE -> Delete a vote from an event";
+    	txt += "\n + /users/classic POST -> Create user using email, username and password";
+    	txt += "\n + /users/{id} GET -> Detail of an user";
+    	txt += "\n + /users/{id}/events GET -> Events posted by an user";
+    	txt += "\n + /login/classic POST -> Login using username and password";
+    	txt += "\n + /logout POST -> Invalidates an authentication token";
 
     	return txt;
     }

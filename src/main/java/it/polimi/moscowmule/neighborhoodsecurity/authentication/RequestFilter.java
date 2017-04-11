@@ -46,8 +46,8 @@ public class RequestFilter implements ContainerRequestFilter {
 			return;
 		}
 
-		// authorize login
-		if (path.startsWith("auth")) {
+		// authorize login and creation
+		if (path.startsWith("auth") && path.startsWith("users")) {
 			return;
 		}
 

@@ -8,13 +8,13 @@ import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
-import it.polimi.moscowmule.neighborhoodsecurity.MyResource;
+import it.polimi.moscowmule.neighborhoodsecurity.Help;
 
 public class MyResourceTest extends JerseyTest {
 
     @Override
     protected Application configure() {
-        return new ResourceConfig(MyResource.class);
+        return new ResourceConfig(Help.class);
     }
 
     /**

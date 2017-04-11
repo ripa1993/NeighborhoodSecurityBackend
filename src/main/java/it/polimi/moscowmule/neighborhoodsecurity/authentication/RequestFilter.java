@@ -18,6 +18,8 @@ public class RequestFilter implements ContainerRequestFilter {
 	public void filter(ContainerRequestContext requestContext) throws IOException {
 		String path = requestContext.getUriInfo().getPath();
 
+		System.out.println("FILTERING path "+path);
+		
 		// IMPORTANT!!! First, Acknowledge any pre-flight test from browsers for
 		// this case before validating the headers (CORS stuff)
 		if (requestContext.getRequest().getMethod().equals("OPTIONS")) {

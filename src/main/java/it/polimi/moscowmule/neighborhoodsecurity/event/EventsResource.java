@@ -32,6 +32,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import it.polimi.moscowmule.neighborhoodsecurity.authentication.Authenticator;
+import it.polimi.moscowmule.neighborhoodsecurity.utilities.Message;
 import it.polimi.moscowmule.neighborhoodsecurity.utilities.ProjectConstants;
 import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.AuthorizationDBException;
 import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.EventDBException;
@@ -85,7 +86,7 @@ public class EventsResource {
 						longitudeMax);
 				return Response.ok(events).build();
 			} catch (EventDBException e) {
-				return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+				return Response.status(Status.BAD_REQUEST).entity(new Message("EVENTS", e.getMessage())).build();
 			}
 		}
 		if (NumberUtils.isNumber(lat) && NumberUtils.isNumber(lon) && NumberUtils.isNumber(rad)) {
@@ -99,11 +100,11 @@ public class EventsResource {
 				return Response.ok(events).build();
 
 			} catch (EventDBException e) {
-				return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+				return Response.status(Status.BAD_REQUEST).entity(new Message("EVENTS",e.getMessage())).build();
 
 			}
 		}
-		return Response.status(Status.BAD_REQUEST).entity("Please check the parameters!").build();
+		return Response.status(Status.BAD_REQUEST).entity(new Message("EVENTS","Please check the parameters!")).build();
 	}
 
 	/**
@@ -146,9 +147,9 @@ public class EventsResource {
 		try {
 			userId = Authenticator.getUserId(authToken);
 		} catch (AuthorizationDBException e2) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e2.getMessage()).build();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Message("AUTHORIZATION",e2.getMessage())).build();
 		} catch (NoUserFoundException e2) {
-			return Response.status(Status.UNAUTHORIZED).entity("Your auth token is not valid!").build();
+			return Response.status(Status.UNAUTHORIZED).entity(new Message("AUTHORIZTION","Your auth token is not valid!")).build();
 		}
 
 		EventType et = EventType.valueOf(eventType);
@@ -173,9 +174,9 @@ public class EventsResource {
 			try {
 				id = EventStorage.instance.add(e);
 			} catch (EventDBException e1) {
-				return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e1.getMessage()).build();
+				return Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Message("EVENTS",e1.getMessage())).build();
 			} catch (NoEventCreatedException e1) {
-				return Response.status(Status.BAD_REQUEST).entity("Please check the passed parameters!").build();
+				return Response.status(Status.BAD_REQUEST).entity(new Message("EVENTS","Please check the passed parameters!")).build();
 			}
 			return Response.created(URI.create(ProjectConstants.EVENTS_BASE_URL + "/" + String.valueOf(id))).build();
 
@@ -185,7 +186,7 @@ public class EventsResource {
 			if (coordinates == null) {
 				// cannot find coordinates, aborting
 				return Response.status(Status.BAD_REQUEST)
-						.entity("Please provide valid city-street-address or coordinates").build();
+						.entity(new Message("EVENTS","Please provide valid city-street-address or coordinates")).build();
 			}
 
 			float lat = coordinates[0];
@@ -205,9 +206,9 @@ public class EventsResource {
 			try {
 				id = EventStorage.instance.add(e);
 			} catch (EventDBException e1) {
-				return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e1.getMessage()).build();
+				return Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Message("EVENTS",e1.getMessage())).build();
 			} catch (NoEventCreatedException e1) {
-				return Response.status(Status.BAD_REQUEST).entity("Please check the passed parameters!").build();
+				return Response.status(Status.BAD_REQUEST).entity(new Message("EVENTS","Please check the passed parameters!")).build();
 			}
 			return Response.created(URI.create(ProjectConstants.EVENTS_BASE_URL + "/" + String.valueOf(id))).build();
 		}
@@ -230,14 +231,14 @@ public class EventsResource {
 				e = EventStorage.instance.getById(NumberUtils.toInt(id));
 				return Response.ok(e).build();
 			} catch (NoEventFoundException e1) {
-				return Response.status(Status.NOT_FOUND).entity("No event with id " + id + " has been found").build();
+				return Response.status(Status.NOT_FOUND).entity(new Message("EVENTS","No event with id " + id + " has been found")).build();
 
 			} catch (EventDBException e1) {
-				return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e1.getMessage()).build();
+				return Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Message("EVENTS",e1.getMessage())).build();
 
 			}
 		}
-		return Response.status(Status.BAD_REQUEST).entity("Id must be a valid positive integer!").build();
+		return Response.status(Status.BAD_REQUEST).entity(new Message("EVENTS","Id must be a valid positive integer!")).build();
 
 	}
 
@@ -260,9 +261,9 @@ public class EventsResource {
 			try {
 				requestingUser = Authenticator.getUserId(authToken);
 			} catch (AuthorizationDBException e2) {
-				return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e2.getMessage()).build();
+				return Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Message("AUHTORIZATION",e2.getMessage())).build();
 			} catch (NoUserFoundException e2) {
-				return Response.status(Status.UNAUTHORIZED).entity("Your auth token is not valid!").build();
+				return Response.status(Status.UNAUTHORIZED).entity(new Message("AUTHORIZATION","Your auth token is not valid!")).build();
 			}
 			// find if he is superuser
 			boolean superuser;
@@ -271,9 +272,9 @@ public class EventsResource {
 			} catch (NoUserFoundException e1) {
 				// should never happen!
 				return Response.status(Status.INTERNAL_SERVER_ERROR)
-						.entity("User disappeared! Something went really wrong :(").build();
+						.entity(new Message("AUTHORIZATION","User disappeared! Something went really wrong :(")).build();
 			} catch (AuthorizationDBException e1) {
-				return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e1.getMessage()).build();
+				return Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Message("AUTHORIZATION",e1.getMessage())).build();
 			}
 
 			// find the owner of the event
@@ -281,26 +282,26 @@ public class EventsResource {
 			try {
 				ownerUser = EventStorage.instance.getSubmitter(NumberUtils.toInt(id));
 			} catch (EventDBException e) {
-				return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+				return Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Message("EVENTS",e.getMessage())).build();
 			} catch (NoEventFoundException e) {
-				return Response.status(Status.NOT_FOUND).entity("No event with id " + id).build();
+				return Response.status(Status.NOT_FOUND).entity(new Message("EVENTS","No event with id " + id)).build();
 			}
 
 			if (requestingUser != ownerUser || !superuser) {
-				return Response.status(Status.UNAUTHORIZED).entity("You are not the owner of event " + id).build();
+				return Response.status(Status.UNAUTHORIZED).entity(new Message("AUTHORIZATION","You are not the owner of event " + id)).build();
 			}
 
 			boolean result;
 			try {
 				result = EventStorage.instance.remove(NumberUtils.toInt(id));
 			} catch (EventDBException e) {
-				return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+				return Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Message("EVENTS",e.getMessage())).build();
 			}
 			if (result) {
 				return Response.status(Status.NO_CONTENT).build();
 			}
 		}
-		return Response.status(Status.BAD_REQUEST).entity("Id must be a valid positive integer!").build();
+		return Response.status(Status.BAD_REQUEST).entity(new Message("EVENTS","Id must be a valid positive integer!")).build();
 	}
 
 	@POST
@@ -313,18 +314,18 @@ public class EventsResource {
 		try {
 			userId = Authenticator.getUserId(authToken);
 		} catch (AuthorizationDBException e2) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e2.getMessage()).build();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Message("AUTHORIZATION",e2.getMessage())).build();
 		} catch (NoUserFoundException e2) {
-			return Response.status(Status.UNAUTHORIZED).entity("Your auth token is not valid!").build();
+			return Response.status(Status.UNAUTHORIZED).entity(new Message("AUTHORIZATION","Your auth token is not valid!")).build();
 		}
 
 		// check if event is valid
 		try {
 			EventStorage.instance.getById(NumberUtils.toInt(eventId));
 		} catch (NoEventFoundException e1) {
-			return Response.status(Status.NOT_FOUND).entity("No event with id " + eventId + " has been found").build();
+			return Response.status(Status.NOT_FOUND).entity(new Message("EVENTS","No event with id " + eventId + " has been found")).build();
 		} catch (EventDBException e1) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e1.getMessage()).build();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Message("EVENTS",e1.getMessage())).build();
 		}
 		
 		// submit the vote
@@ -333,12 +334,12 @@ public class EventsResource {
 				EventStorage.instance.vote(userId, NumberUtils.toInt(eventId));
 				return Response.status(Status.NO_CONTENT).build();
 			} catch (VotesDBException e) {
-				return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+				return Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Message("EVENTS",e.getMessage())).build();
 			} catch (NoVoteCreatedException e) {
-				return Response.status(Status.NO_CONTENT).entity("This user already voted this event!").build();
+				return Response.status(Status.NO_CONTENT).entity(new Message("EVENTS","This user already voted this event!")).build();
 			}
 		}
-		return Response.status(Status.BAD_REQUEST).entity("Id must be a valid positive integer!").build();
+		return Response.status(Status.BAD_REQUEST).entity(new Message("EVENTS","Id must be a valid positive integer!")).build();
 	}
 
 	/**

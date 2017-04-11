@@ -10,6 +10,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import it.polimi.moscowmule.neighborhoodsecurity.utilities.Message;
 import it.polimi.moscowmule.neighborhoodsecurity.utilities.ProjectConstants;
 import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.AuthorizationDBException;
 import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.NoUserFoundException;
@@ -31,11 +32,11 @@ public class AuthenticationResource {
 			toBeReturned.setUsername(username);
 			return Response.ok(toBeReturned).build();
 		} catch (NoUserFoundException e) {
-			return Response.status(Status.UNAUTHORIZED).entity("Login is incorrect").build();
+			return Response.status(Status.UNAUTHORIZED).entity(new Message("AUTHORIZATION", "Login is incorrect")).build();
 		} catch (SecretDBException e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Message("DATABASE", e.getMessage())).build();
 		} catch (AuthorizationDBException e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Message("DATABASE", e.getMessage())).build();
 
 		}
 		
@@ -48,11 +49,11 @@ public class AuthenticationResource {
 		try {
 			int userId = Authenticator.getUserId(authToken);
 			Authenticator.invalidateToken(userId);
-			return Response.ok("Logged out, discard your token").build();
+			return Response.ok(new Message("AUTHORIZATION", "Logged out, discard your token")).build();
 		} catch (AuthorizationDBException e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Message("DATABASE", e.getMessage())).build();
 		} catch (NoUserFoundException e) {
-			return Response.status(Status.UNAUTHORIZED).entity("Your auth token is already invalid").build();
+			return Response.status(Status.UNAUTHORIZED).entity(new Message("AUTHORIZATION", "Your auth token is already invalid")).build();
 		}
 	}
 	

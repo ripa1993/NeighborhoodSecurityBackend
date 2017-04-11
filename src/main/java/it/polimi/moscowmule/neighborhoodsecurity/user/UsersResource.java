@@ -23,6 +23,7 @@ import org.apache.commons.validator.routines.EmailValidator;
 
 import it.polimi.moscowmule.neighborhoodsecurity.event.Event;
 import it.polimi.moscowmule.neighborhoodsecurity.event.EventStorage;
+import it.polimi.moscowmule.neighborhoodsecurity.utilities.Message;
 import it.polimi.moscowmule.neighborhoodsecurity.utilities.ProjectConstants;
 import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.EventDBException;
 import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.NoUserCreatedException;
@@ -58,20 +59,22 @@ public class UsersResource {
 			@FormParam("password") String password) {
 
 		if (!EmailValidator.getInstance().isValid(email)) {
-			return Response.status(Status.BAD_REQUEST).entity("Email is not valid").build();
+			return Response.status(Status.BAD_REQUEST).entity(new Message("USERS", "Email is not valid")).build();
 		}
 		// 8 characters, at least 1 lowercase, 1 uppercase, 1 number, no spaces
 		String pattern = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=\\S+$).{8,}$";
 		if (!password.matches(pattern)) {
 			return Response.status(Status.BAD_REQUEST)
-					.entity("Password must be 8 characters long, containing at least one uppercase, one lowercase and one number")
+					.entity(new Message("USERS",
+							"Password must be 8 characters long, containing at least one uppercase, one lowercase and one number"))
 					.build();
 		}
 		// 4-20 characters, no special symbols and spaces
 		pattern = "^(?=.*[A-Za-z0-9])(?=\\S+$).{4,20}$";
 		if (!username.matches(pattern)) {
 			return Response.status(Status.BAD_REQUEST)
-					.entity("Username must be between 4 and 20 characters, not containing spaces or special symbols")
+					.entity(new Message("USERS",
+							"Username must be between 4 and 20 characters, not containing spaces or special symbols"))
 					.build();
 		}
 		User u = new User();
@@ -83,9 +86,10 @@ public class UsersResource {
 			id = UserStorage.instance.addWithPassword(u, password);
 			return Response.created(URI.create(ProjectConstants.USERS_BASE_URL + "/" + String.valueOf(id))).build();
 		} catch (UserDBException e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Message("USERS", e.getMessage())).build();
 		} catch (NoUserCreatedException e) {
-			return Response.status(Status.BAD_REQUEST).entity("Username or email already in use").build();
+			return Response.status(Status.BAD_REQUEST).entity(new Message("USERS", "Username or email already in use"))
+					.build();
 		}
 
 	}
@@ -108,13 +112,13 @@ public class UsersResource {
 				u = UserStorage.instance.getById(NumberUtils.toInt(id));
 				return Response.ok(u).build();
 			} catch (NoUserFoundException e) {
-				return Response.status(Status.NOT_FOUND).entity("No user with id " + id + " has been found").build();
+				return Response.status(Status.NOT_FOUND).entity(new Message("USERS","No user with id " + id + " has been found")).build();
 			} catch (UserDBException e) {
-				return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+				return Response.status(Status.BAD_REQUEST).entity(new Message("USERS",e.getMessage())).build();
 			}
 
 		}
-		return Response.status(Status.BAD_REQUEST).entity("Id must be a valid positive integer!").build();
+		return Response.status(Status.BAD_REQUEST).entity(new Message("USERS","Id must be a valid positive integer!")).build();
 	}
 
 	/**
@@ -137,13 +141,13 @@ public class UsersResource {
 				List<Event> events = EventStorage.instance.getByUser(NumberUtils.toInt(id));
 				return Response.ok(events).build();
 			} catch (NoUserFoundException e) {
-				return Response.status(Status.NOT_FOUND).entity("No user with id " + id + " has been found").build();
+				return Response.status(Status.NOT_FOUND).entity(new Message("USERS","No user with id " + id + " has been found")).build();
 			} catch (UserDBException | EventDBException e) {
-				return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+				return Response.status(Status.BAD_REQUEST).entity(new Message("USERS",e.getMessage())).build();
 			}
 
 		}
-		return Response.status(Status.BAD_REQUEST).entity("Id must be a valid positive integer!").build();
+		return Response.status(Status.BAD_REQUEST).entity(new Message("USERS","Id must be a valid positive integer!")).build();
 	}
 
 }

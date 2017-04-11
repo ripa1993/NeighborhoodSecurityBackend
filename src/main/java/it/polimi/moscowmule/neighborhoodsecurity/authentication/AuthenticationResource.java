@@ -13,6 +13,7 @@ import javax.ws.rs.core.Response.Status;
 import it.polimi.moscowmule.neighborhoodsecurity.utilities.Message;
 import it.polimi.moscowmule.neighborhoodsecurity.utilities.ProjectConstants;
 import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.AuthorizationDBException;
+import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.NoTokenCreatedException;
 import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.NoUserFoundException;
 import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.SecretDBException;
 
@@ -38,7 +39,8 @@ public class AuthenticationResource {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Message("DATABASE", e.getMessage())).build();
 		} catch (AuthorizationDBException e) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Message("DATABASE", e.getMessage())).build();
-
+		} catch (NoTokenCreatedException e) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Message("DATABASE", "Problem in generating the token")).build();
 		}
 		
 	}

@@ -10,6 +10,7 @@ import java.util.UUID;
 import it.polimi.moscowmule.neighborhoodsecurity.utilities.ProjectConstants;
 import it.polimi.moscowmule.neighborhoodsecurity.utilities.database.Database;
 import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.AuthorizationDBException;
+import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.NoTokenCreatedException;
 import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.NoUserFoundException;
 import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.SecretDBException;
 
@@ -24,23 +25,27 @@ public class Authenticator {
 	 *             if the authToken is of no user
 	 */
 	public static int getUserId(String authToken) throws AuthorizationDBException, NoUserFoundException {
-		Connection connection;
-		try {
-			connection = Database.getConnection();
+		System.out.println("[DB] getting user id with token " + authToken);
+		try (Connection connection = Database.getConnection()) {
 			PreparedStatement getStmt = connection.prepareStatement(
 					"SELECT ID FROM gsx95369n3oh2zo6.authorization WHERE TOKEN = ? AND ISVALID = 1",
 					ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			getStmt.clearParameters();
 			getStmt.setString(1, authToken);
 			ResultSet result = getStmt.executeQuery();
+			System.out.println("[DB] Query executed");
 			if (result.next()) {
+				System.out.println("[DB] Id found");
 				return result.getInt(1);
 			} else {
 				// no match
+				System.out.println("[DB] Id not found");
 				throw new NoUserFoundException();
 			}
 
 		} catch (ClassNotFoundException | URISyntaxException | SQLException e) {
+			System.out.println("[DB] EXCEPTION in Authenicator.getUserId()");
+			System.out.println(e.getMessage());
 			throw new AuthorizationDBException("ERROR when finding user id from token", e);
 		}
 	}
@@ -56,25 +61,30 @@ public class Authenticator {
 	 * @throws AuthorizationDBException
 	 */
 	public static boolean isSuperuser(int id) throws NoUserFoundException, AuthorizationDBException {
-		Connection connection;
-		try {
-			connection = Database.getConnection();
+		System.out.println("[DB] Checking if " + id + " is superuser");
+		try (Connection connection = Database.getConnection()) {
+
 			PreparedStatement getStmt = connection.prepareStatement(
 					"SELECT SUPERUSER FROM gsx95369n3oh2zo6.authorization WHERE ID = ?",
 					ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			getStmt.clearParameters();
 			getStmt.setInt(1, id);
 			ResultSet result = getStmt.executeQuery();
+			System.out.println("[DB] Query executed");
 			if (result.next()) {
+				System.out.println("[DB] User found");
 				if (result.getInt(1) > 0) {
 					return true;
 				} else {
 					return false;
 				}
 			} else {
+				System.out.println("[DB] User not found");
 				throw new NoUserFoundException();
 			}
 		} catch (ClassNotFoundException | URISyntaxException | SQLException e) {
+			System.out.println("EXCEPTION in Authenticator.isSuperuser()");
+			System.out.println(e.getMessage());
 			throw new AuthorizationDBException("ERROR when finding if user is superuser", e);
 		}
 	}
@@ -90,9 +100,9 @@ public class Authenticator {
 	 * @throws SecretDBException
 	 */
 	public static int checkPassword(String username, String password) throws NoUserFoundException, SecretDBException {
-		Connection connection;
-		try {
-			connection = Database.getConnection();
+		System.out.println("[DB] Checking password for " + username);
+		try (Connection connection = Database.getConnection()) {
+
 			PreparedStatement getStmt = connection.prepareStatement(
 					"SELECT ID FROM gsx95369n3oh2zo6.users JOIN gsx95369n3oh2zo6.secret WHERE USERNAME = ? AND PASSWORD = ?",
 					ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
@@ -100,13 +110,18 @@ public class Authenticator {
 			getStmt.setString(1, username);
 			getStmt.setString(2, password);
 			ResultSet result = getStmt.executeQuery();
+			System.out.println("[DB] Query executed");
 			if (result.next()) {
+				System.out.println("[DB] Password ok");
 				return result.getInt(1);
 			} else {
 				// wrong pair
+				System.out.println("[DB] No match");
 				throw new NoUserFoundException();
 			}
 		} catch (ClassNotFoundException | URISyntaxException | SQLException e) {
+			System.out.println("EXCEPTION in Authenticator.checkPassword()");
+			System.out.println(e.getMessage());
 			throw new SecretDBException("ERROR when checking username and password", e);
 		}
 	}
@@ -118,21 +133,29 @@ public class Authenticator {
 	 *            the user id
 	 * @return the generated token
 	 * @throws AuthorizationDBException
+	 * @throws NoTokenCreatedException
 	 */
-	public static String generateToken(int id) throws AuthorizationDBException {
-		Connection connection;
-		try {
-			connection = Database.getConnection();
+	public static String generateToken(int id) throws AuthorizationDBException, NoTokenCreatedException {
+		System.out.println("[DB] Generating token for " + id);
+		try (Connection connection = Database.getConnection()) {
+
 			PreparedStatement updStmt = connection
 					.prepareStatement("UPDATE gsx95369n3oh2zo6.authorization SET TOKEN = ?, ISVALID = 1 WHERE ID = ?");
 			String token = UUID.randomUUID().toString();
 			updStmt.setString(1, token);
 			updStmt.setInt(2, id);
-			updStmt.executeUpdate();
+			int result = updStmt.executeUpdate();
 
-			return token;
-
+			if (result > 0) {
+				System.out.println("[DB] Token created");
+				return token;
+			} else {
+				System.out.println("[DB] No token created");
+				throw new NoTokenCreatedException();
+			}
 		} catch (ClassNotFoundException | URISyntaxException | SQLException e) {
+			System.out.println("EXCEPTION in Authenticator.genereateToken()");
+			System.out.println(e.getMessage());
 			throw new AuthorizationDBException("ERROR when creating token", e);
 		}
 
@@ -147,17 +170,23 @@ public class Authenticator {
 	 * @throws AuthorizationDBException
 	 */
 	public static boolean invalidateToken(int id) throws AuthorizationDBException {
-		Connection connection;
-		try {
-			connection = Database.getConnection();
+		System.out.println("[DB] Invalidating token for " + id);
+		try (Connection connection = Database.getConnection()) {
+
 			PreparedStatement updStmt = connection
 					.prepareStatement("UPDATE gsx95369n3oh2zo6.authorization SET ISVALID = 0 WHERE ID = ?");
 			updStmt.setInt(1, id);
-			updStmt.executeUpdate();
-
-			return true;
-
+			int result = updStmt.executeUpdate();
+			if (result > 0) {
+				System.out.println("[DB] Token invalidated");
+				return true;
+			} else {
+				System.out.println("[DB] Token was already invalid?");
+				return false;
+			}
 		} catch (ClassNotFoundException | URISyntaxException | SQLException e) {
+			System.out.println("[DB] EXCEPTION in Authenticator.invalidateToken()");
+			System.out.println(e.getMessage());
 			throw new AuthorizationDBException("ERROR when invalidating token", e);
 		}
 	}
@@ -167,8 +196,8 @@ public class Authenticator {
 			return true;
 		return false;
 	}
-	
-	public static boolean isAuthTokenValid(String authToken){
+
+	public static boolean isAuthTokenValid(String authToken) {
 		try {
 			getUserId(authToken);
 			return true;

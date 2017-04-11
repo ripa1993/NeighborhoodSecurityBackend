@@ -1,4 +1,4 @@
-package it.polimi.moscowmule.neighborhoodsecurity;
+package it.polimi.moscowmule.neighborhoodsecurity.utilities;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;

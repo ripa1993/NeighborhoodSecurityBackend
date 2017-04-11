@@ -4,11 +4,30 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import it.polimi.moscowmule.neighborhoodsecurity.utilities.ProjectConstants;
 
+/**
+ * Representation of an authorization token, used when returning the token after
+ * a request
+ * 
+ * @author Simone Ripamonti
+ *
+ */
 @XmlRootElement
 public class AuthToken {
+	/**
+	 * the token
+	 */
 	private String authToken;
+	/**
+	 * the user id
+	 */
 	private int userId;
+	/**
+	 * the user name
+	 */
 	private String username;
+	/**
+	 * the user url
+	 */
 	private String userUrl;
 
 	public AuthToken() {

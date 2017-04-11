@@ -14,6 +14,12 @@ import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.NoTokenCre
 import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.NoUserFoundException;
 import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.SecretDBException;
 
+/**
+ * Authentication related methods
+ * 
+ * @author Simone Ripamonti
+ *
+ */
 public class Authenticator {
 	/**
 	 * Retrieves user id given the token
@@ -191,12 +197,24 @@ public class Authenticator {
 		}
 	}
 
+	/**
+	 * Checks if the provided service key is valid
+	 * 
+	 * @param serviceKey
+	 * @return true if valid, otherwise false
+	 */
 	public static boolean isServiceKeyValid(String serviceKey) {
 		if (ProjectConstants.SERVICE_KEYS.contains(serviceKey))
 			return true;
 		return false;
 	}
 
+	/**
+	 * Checks if the provided authorization token is valid
+	 * 
+	 * @param authToken
+	 * @return true if valid, otherwise false
+	 */
 	public static boolean isAuthTokenValid(String authToken) {
 		try {
 			getUserId(authToken);

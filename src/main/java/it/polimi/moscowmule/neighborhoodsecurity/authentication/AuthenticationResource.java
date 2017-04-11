@@ -17,6 +17,13 @@ import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.NoTokenCre
 import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.NoUserFoundException;
 import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.SecretDBException;
 
+/**
+ * Authentication resource, exposed at /auth supports login with
+ * username+password
+ * 
+ * @author Simone Ripamonti
+ *
+ */
 @Path("auth")
 public class AuthenticationResource {
 

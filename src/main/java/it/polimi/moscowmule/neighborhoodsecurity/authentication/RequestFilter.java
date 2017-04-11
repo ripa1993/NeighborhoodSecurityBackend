@@ -10,6 +10,18 @@ import javax.ws.rs.ext.Provider;
 
 import it.polimi.moscowmule.neighborhoodsecurity.utilities.ProjectConstants;
 
+/**
+ * Request filter. 
+ * <ul>
+ * <li>always allow /help</li>
+ * <li>deny if service key is invalid</li>
+ * <li>allow all GET</li>
+ * <li>allow all POST to /auth or /users
+ * <li>deny if auth token is invalid</li>
+ * </ul>
+ * @author Simone Ripamonti
+ *
+ */
 @Provider
 @PreMatching
 public class RequestFilter implements ContainerRequestFilter {
@@ -18,7 +30,7 @@ public class RequestFilter implements ContainerRequestFilter {
 	public void filter(ContainerRequestContext requestContext) throws IOException {
 		String path = requestContext.getUriInfo().getPath();
 
-		System.out.println("FILTERING path "+path);
+		System.out.println("[FILTERING] path "+path);
 		
 		// IMPORTANT!!! First, Acknowledge any pre-flight test from browsers for
 		// this case before validating the headers (CORS stuff)

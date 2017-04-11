@@ -25,7 +25,7 @@ public enum UserStorage {
 				createLogin(id, password);
 			} catch (NoUserLoginCreatedException | SecretDBException e) {
 				// need to rollback and throw exception
-				remove(id);	
+				remove(id);
 				throw new NoUserCreatedException();
 			}
 		}
@@ -37,15 +37,15 @@ public enum UserStorage {
 	}
 
 	public User getById(int id) throws NoUserFoundException, UserDBException {
-		Connection connection;
-		try {
-			connection = Database.getConnection();
+		System.out.println("[DB] Beginning search for id"+id);
+		try (Connection connection = Database.getConnection()) {
 
 			PreparedStatement getStmt = connection.prepareStatement("SELECT * FROM gsx95369n3oh2zo6.users WHERE ID = ?",
 					ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			getStmt.clearParameters();
 			getStmt.setInt(1, id);
 			ResultSet results = getStmt.executeQuery();
+			System.out.println("[DB] Query executed for "+id);
 			User u = null;
 			if (results.next()) {
 				u = new User();
@@ -53,27 +53,29 @@ public enum UserStorage {
 				u.setUsername(results.getString(2));
 				u.setEmail(results.getString(3));
 				u.setCreated(results.getDate(4));
+				System.out.println("[DB] User found with id "+id);
 			} else {
-				connection.close();
+				System.out.println("[DB] No user found with id "+id);
 				throw new NoUserFoundException();
 			}
 
-			connection.close();
 			return u;
 		} catch (URISyntaxException | SQLException | ClassNotFoundException e) {
+			System.out.println("[DB] EXCEPTION in UserStorage.getById()");
+			System.out.println(e.getMessage());
 			throw new UserDBException("ERROR when finding user by id", e);
 		}
 	}
 
 	public User getByEmail(String email) throws NoUserFoundException, UserDBException {
-		Connection connection;
-		try {
-			connection = Database.getConnection();
+		System.out.println("[DB] Beginning search for email"+email);
+		try (Connection connection = Database.getConnection()) {
 			PreparedStatement getStmt = connection.prepareStatement(
 					"SELECT * FROM gsx95369n3oh2zo6.users WHERE EMAIL = ?", ResultSet.TYPE_SCROLL_INSENSITIVE,
 					ResultSet.CONCUR_READ_ONLY);
 			getStmt.clearParameters();
 			getStmt.setString(1, email);
+			System.out.println("[DB] Query executed for "+email);
 			ResultSet results = getStmt.executeQuery();
 			User u = null;
 			if (results.next()) {
@@ -82,40 +84,43 @@ public enum UserStorage {
 				u.setUsername(results.getString(2));
 				u.setEmail(results.getString(3));
 				u.setCreated(results.getDate(4));
+				System.out.println("[DB] User found with email "+email);
+				return u;
 			} else {
-				connection.close();
+				System.out.println("[DB] No user found with email "+email);
 				throw new NoUserFoundException();
 			}
-
-			connection.close();
-			return u;
 		} catch (URISyntaxException | SQLException | ClassNotFoundException e) {
+			System.out.println("[DB] EXCEPTION in UserStorage.getByEmail()");
+			System.out.println(e.getMessage());
 			throw new UserDBException("ERROR when finding user by email", e);
 		}
 	}
 
 	public boolean remove(int id) throws UserDBException {
-		Connection connection;
-		try {
-			connection = Database.getConnection();
+		System.out.println("[DB] Beginning deletion of id " + id);
+		try (Connection connection = Database.getConnection()) {
 			PreparedStatement delStmt = connection.prepareStatement("DELETE FROM gsx95369n3oh2zo6.users WHERE ID = ?",
 					ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			delStmt.clearParameters();
 			delStmt.setInt(1, id);
-			delStmt.executeUpdate();
-			connection.close();
+			int result = delStmt.executeUpdate();
+			System.out.println("[DB] Update executed for " + id +", affected rows "+result);
+			if(result>0){
+				return true;
+			} else {
+				return false;
+			}
 		} catch (URISyntaxException | SQLException | ClassNotFoundException e) {
+			System.out.println("[DB] EXCEPTION in UserStorage.remove()");
+			System.out.println(e.getMessage());
 			throw new UserDBException("ERROR when deleting user", e);
 		}
-		return true;
 	}
 
 	private int createUser(User u) throws UserDBException, NoUserCreatedException {
 		System.out.println("[DB] Beginning user creation " + u);
-		Connection connection;
-		try {
-			connection = Database.getConnection();
-			System.out.println("[DB] Connection established");
+		try (Connection connection = Database.getConnection()) {
 			PreparedStatement createStmt = connection.prepareStatement(
 					"INSERT INTO gsx95369n3oh2zo6.users (USERNAME, EMAIL, CREATED) VALUES (?,?,?)",
 					Statement.RETURN_GENERATED_KEYS);
@@ -123,7 +128,6 @@ public enum UserStorage {
 			createStmt.setString(1, u.getUsername());
 			createStmt.setString(2, u.getEmail());
 			createStmt.setDate(3, new Date(System.currentTimeMillis()));
-			System.out.println("[DB] Statement prepared for " + u);
 			createStmt.executeUpdate();
 			System.out.println("[DB] Update executed for " + u);
 			ResultSet results = createStmt.getGeneratedKeys();
@@ -138,7 +142,6 @@ public enum UserStorage {
 			System.out.println("[DB] Beginning user authorization creation for " + u);
 			PreparedStatement createStmt2 = connection.prepareStatement(
 					"INSERT INTO gsx95369n3oh2zo6.authorization (ID, SUPERUSER, TOKEN, ISVALID) VALUES (?,?,?,?)");
-			System.out.println("[DB] Authorization statement prepared for " + u);
 			createStmt2.clearParameters();
 			createStmt2.setInt(1, id);
 			createStmt2.setInt(2, 0);
@@ -146,30 +149,34 @@ public enum UserStorage {
 			createStmt2.setInt(4, 0);
 			createStmt2.executeUpdate();
 			System.out.println("[DB] Completed creation of " + u);
-			connection.close();
 			return id;
 		} catch (URISyntaxException | SQLException | ClassNotFoundException e) {
-			System.err.println(e.getMessage());
+			System.out.println("[DB] EXCEPTION in UserStorage.createUser()");
+			System.out.println(e.getMessage());
 			throw new UserDBException("ERROR when creating user", e);
 		}
 	}
 
-	private boolean createLogin(int id, String password) throws NoUserLoginCreatedException, UserDBException, SecretDBException {
-		Connection connection;
-		try {
-			connection = Database.getConnection();
+	private boolean createLogin(int id, String password)
+			throws NoUserLoginCreatedException, UserDBException, SecretDBException {
+		System.out.println("[DB] Beginning creation of credentials for id " + id);
+		try (Connection connection = Database.getConnection()) {
 			PreparedStatement createStmt = connection.prepareStatement(
 					"INSERT INTO gsx95369n3oh2zo6.secret (ID, PASSWORD) VALUES (?,?)", Statement.RETURN_GENERATED_KEYS);
 			createStmt.clearParameters();
 			createStmt.setInt(1, id);
 			createStmt.setString(2, password);
 			createStmt.executeUpdate();
+			System.out.println("[DB] Update executed for id "+id);
 			ResultSet results = createStmt.getGeneratedKeys();
 			if (!results.next()) {
 				// no key generated!
+				System.out.println("[DB] Credential hasn't been created");
 				throw new NoUserLoginCreatedException();
 			}
 		} catch (SQLException | URISyntaxException | ClassNotFoundException e) {
+			System.out.println("[DB] EXCEPTION in UserStorage.createLogin()");
+			System.out.println(e.getMessage());
 			throw new SecretDBException("ERROR when creating login", e);
 		}
 		return true;

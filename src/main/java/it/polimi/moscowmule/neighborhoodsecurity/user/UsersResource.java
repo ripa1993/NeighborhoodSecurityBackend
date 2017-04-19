@@ -114,7 +114,7 @@ public class UsersResource {
 			} catch (NoUserFoundException e) {
 				return Response.status(Status.NOT_FOUND).entity(new Message("USERS","No user with id " + id + " has been found")).build();
 			} catch (UserDBException e) {
-				return Response.status(Status.BAD_REQUEST).entity(new Message("USERS",e.getMessage())).build();
+				return Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Message("USERS",e.getMessage())).build();
 			}
 
 		}
@@ -143,7 +143,7 @@ public class UsersResource {
 			} catch (NoUserFoundException e) {
 				return Response.status(Status.NOT_FOUND).entity(new Message("USERS","No user with id " + id + " has been found")).build();
 			} catch (UserDBException | EventDBException e) {
-				return Response.status(Status.BAD_REQUEST).entity(new Message("USERS",e.getMessage())).build();
+				return Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Message("USERS",e.getMessage())).build();
 			}
 
 		}

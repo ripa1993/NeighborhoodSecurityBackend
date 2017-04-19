@@ -6,9 +6,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import it.polimi.moscowmule.neighborhoodsecurity.utilities.ProjectConstants;
 
+/**
+ * Class representing an event
+ * 
+ * @author Simone Ripamonti
+ *
+ */
 @XmlRootElement
 public class Event {
-	
+
 	/**
 	 * unique id of the event
 	 */
@@ -61,9 +67,9 @@ public class Event {
 	 * hypermedia: url of the submitter
 	 */
 	private String submitterUrl;
-	
-	public Event(){
-		
+
+	public Event() {
+
 	}
 
 	public int getId() {
@@ -72,7 +78,7 @@ public class Event {
 
 	public void setId(int id) {
 		this.id = id;
-		this.eventUrl = ProjectConstants.USERS_BASE_URL + "/" + String.valueOf(id);	
+		this.eventUrl = ProjectConstants.USERS_BASE_URL + "/" + String.valueOf(id);
 	}
 
 	public Date getDate() {
@@ -145,7 +151,7 @@ public class Event {
 
 	public void setSubmitterId(int submitterId) {
 		this.submitterId = submitterId;
-		this.submitterUrl = ProjectConstants.USERS_BASE_URL+"/"+String.valueOf(submitterId);
+		this.submitterUrl = ProjectConstants.USERS_BASE_URL + "/" + String.valueOf(submitterId);
 	}
 
 	public String getEventUrl() {
@@ -171,6 +177,5 @@ public class Event {
 	public void setVotes(int votes) {
 		this.votes = votes;
 	}
-	
-	
+
 }

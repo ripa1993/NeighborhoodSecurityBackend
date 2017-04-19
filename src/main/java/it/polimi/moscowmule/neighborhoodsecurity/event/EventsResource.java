@@ -41,7 +41,19 @@ import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.NoEventFou
 import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.NoUserFoundException;
 import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.NoVoteCreatedException;
 import it.polimi.moscowmule.neighborhoodsecurity.utilities.exceptions.VotesDBException;
-
+/**
+ * Resource representing events
+ * <ul>
+ * <li>GET /events</li>
+ * <li>POST /events</li>
+ * <li>GET /events/{id}</li>
+ * <li>DELETE /events/{id}</li>
+ * <li>POST /events/{id}/vote</li>
+ * <li>DELETE /events/{id}/vote</li>
+ * </ul>
+ * @author Simone Ripamonti
+ *
+ */
 @Path("/events")
 public class EventsResource {
 	@Context
@@ -86,7 +98,7 @@ public class EventsResource {
 						longitudeMax);
 				return Response.ok(events).build();
 			} catch (EventDBException e) {
-				return Response.status(Status.BAD_REQUEST).entity(new Message("EVENTS", e.getMessage())).build();
+				return Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Message("EVENTS", e.getMessage())).build();
 			}
 		}
 		if (NumberUtils.isNumber(lat) && NumberUtils.isNumber(lon) && NumberUtils.isNumber(rad)) {
@@ -100,7 +112,7 @@ public class EventsResource {
 				return Response.ok(events).build();
 
 			} catch (EventDBException e) {
-				return Response.status(Status.BAD_REQUEST).entity(new Message("EVENTS", e.getMessage())).build();
+				return Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Message("EVENTS", e.getMessage())).build();
 
 			}
 		}

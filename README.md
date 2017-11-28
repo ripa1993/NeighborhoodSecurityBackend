@@ -17,3 +17,7 @@ This repository contains the REST API backend used by the Android application.
 - /events
 - /subscriptions
 - /users
+
+## Useful Links:
+- [Design Document](https://github.com/ripa1993/Neighborhood-Security-DD)
+- [Android Application Source Code](https://github.com/ripa1993/NeighborhoodSecurity/)
